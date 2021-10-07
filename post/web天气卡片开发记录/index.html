@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"asakirain.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="0.前言10.4晚上，写完高数线代作业终于空下来了，出了趟门后准备开始写助手的任务。 第一项搭建个人博客的任务暑假刚好做完，省事了。我选择第二项制作天气卡片的任务。因为要求把开发过程做一篇记录发表，于是就有了这篇文章。 1.数据源拿到手的时候任务介绍里指路了可以使用高德或者彩云的天气api，但是恰逢国庆，彩云开放平台审核放假了，一直是Pending Review的状态，于是我转向高德。 高德的ap">
+<meta property="og:type" content="article">
+<meta property="og:title" content="web天气卡片开发记录">
+<meta property="og:url" content="https://asakirain.github.io/post/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/index.html">
+<meta property="og:site_name" content="AsakiRain的小站">
+<meta property="og:description" content="0.前言10.4晚上，写完高数线代作业终于空下来了，出了趟门后准备开始写助手的任务。 第一项搭建个人博客的任务暑假刚好做完，省事了。我选择第二项制作天气卡片的任务。因为要求把开发过程做一篇记录发表，于是就有了这篇文章。 1.数据源拿到手的时候任务介绍里指路了可以使用高德或者彩云的天气api，但是恰逢国庆，彩云开放平台审核放假了，一直是Pending Review的状态，于是我转向高德。 高德的ap">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%9A%E4%BB%B7.png">
+<meta property="og:image" content="https://asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%A1%E6%A0%B8%E6%88%90%E5%8A%9F%E9%82%AE%E4%BB%B6.png">
+<meta property="og:image" content="https://asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%92%8C%E9%A3%8E%E5%A4%A9%E6%B0%94%E5%9B%BE%E6%A0%87.png">
+<meta property="og:image" content="https://asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/CORS.png">
+<meta property="og:image" content="https://asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E6%8B%92%E7%BB%9D%E8%BF%9E%E6%8E%A5.png">
+<meta property="og:image" content="https://asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/css%E8%AE%A1%E7%AE%97%E8%83%8C%E6%99%AF%E6%B8%90%E5%8F%98.png">
+<meta property="og:image" content="https://asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E4%B8%89%E5%85%83%E8%BF%90%E7%AE%97%E7%AC%A6%E5%8C%BA%E5%88%86%E5%AE%B9%E5%99%A8.png">
+<meta property="og:image" content="https://asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/root%E9%A2%9C%E8%89%B2%E7%BB%84%E8%A2%AB%E5%90%AF%E7%94%A8.png">
+<meta property="og:image" content="https://asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/dark%E9%A2%9C%E8%89%B2%E7%BB%84%E8%A6%86%E7%9B%96%E4%BA%86root.png">
+<meta property="article:published_time" content="2021-10-05T02:04:32.000Z">
+<meta property="article:modified_time" content="2021-10-07T15:59:30.982Z">
+<meta property="article:author" content="AsakiRain">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%9A%E4%BB%B7.png">
+
+<link rel="canonical" href="https://asakirain.github.io/post/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>web天气卡片开发记录 | AsakiRain的小站</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">AsakiRain的小站</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-友情链接">
+
+    <a href="/friends/" rel="section"><i class="fa fa-address-book fa-fw"></i>友情链接</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://asakirain.github.io/post/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="AsakiRain">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="AsakiRain的小站">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          web天气卡片开发记录
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-10-05 10:04:32" itemprop="dateCreated datePublished" datetime="2021-10-05T10:04:32+08:00">2021-10-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-10-07 23:59:30" itemprop="dateModified" datetime="2021-10-07T23:59:30+08:00">2021-10-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="0-前言"><a href="#0-前言" class="headerlink" title="0.前言"></a>0.前言</h2><p>10.4晚上，写完高数线代作业终于空下来了，出了趟门后准备开始写助手的任务。</p>
+<p>第一项搭建个人博客的任务暑假刚好做完，省事了。我选择第二项制作天气卡片的任务。因为要求把开发过程做一篇记录发表，于是就有了这篇文章。</p>
+<h2 id="1-数据源"><a href="#1-数据源" class="headerlink" title="1.数据源"></a>1.数据源</h2><p>拿到手的时候任务介绍里指路了可以使用<a target="_blank" rel="noopener" href="https://lbs.amap.com/api/">高德</a>或者<a target="_blank" rel="noopener" href="https://open.caiyunapp.com/%E5%BD%A9%E4%BA%91%E5%A4%A9%E6%B0%94_API">彩云</a>的天气api，但是恰逢国庆，彩云开放平台审核放假了，一直是Pending Review的状态，于是我转向高德。</p>
+<p>高德的api很简单，一下子就弄懂，可惜它提供的更多是地图方面的服务，天气数据实在太有限了，不足以完成进阶任务。找了一晚上，选定了<a target="_blank" rel="noopener" href="https://dev.qweather.com/">和风天气API</a>，对于个人开发者的优待完全满足了我的需求。<br><img src="//asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%9A%E4%BB%B7.png" alt="定价"><br>认证个人开发者有也非常快，应该是采用了AI审核，我凌晨发出申请，半分钟后就通过了，太感动了。<br><img src="//asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%A1%E6%A0%B8%E6%88%90%E5%8A%9F%E9%82%AE%E4%BB%B6.png" alt="审核成功邮件"><br>可靠的数据源到手，着手开始制作。</p>
+<h2 id="2-构思"><a href="#2-构思" class="headerlink" title="2.构思"></a>2.构思</h2><ol>
+<li>任务建议使用原生js实现，且没有指定平台。鉴于助手在手机端更常用，而且时间很有限不足以完成响应式布局，我决定开发手机页面，这样可供参考的软件也会很多。</li>
+<li>网络请求: 决定使用axios，因我没用过，想试试。</li>
+<li>天气图标: 和风天气设计了一套开源的<a target="_blank" rel="noopener" href="https://dev.qweather.com/docs/start/icons/">和风天气图标</a>,仓库地址<a target="_blank" rel="noopener" href="https://github.com/qwd/Icons">在这</a>。<br><img src="//asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%92%8C%E9%A3%8E%E5%A4%A9%E6%B0%94%E5%9B%BE%E6%A0%87.png" alt="和风天气图标"><br>不过它只设计了天气现象相关图标，缺少诸如大气压、紫外线、日出、能见度等图标，但是先凑活着用吧。</li>
+<li>图标展示: 推荐的<a target="_blank" rel="noopener" href="https://www.chartjs.org/">Charts.js</a>文档实在难看懂，网上搜索不到几篇教程。最后选择了Apache基金会的<a target="_blank" rel="noopener" href="https://echarts.apache.org/zh/index.html">ECharts.js</a>，不仅有中文文档，网上能搜到的教程也多得多。不过全功能的包体有点大，等以后可以研究一下按需引入。</li>
+<li>页面布局：我结合了手头的华为天气和数据提供商自己的一个<a target="_blank" rel="noopener" href="https://www.qweather.com/app/">S和风天气app</a>。</li>
+</ol>
+<h2 id="3-动手"><a href="#3-动手" class="headerlink" title="3.动手"></a>3.动手</h2><h4 id="3-0-IDE选择"><a href="#3-0-IDE选择" class="headerlink" title="3.0 IDE选择"></a>3.0 IDE选择</h4><p>以前开发我基本就用DW或者vsc + 浏览器内建的样式编辑器，这次想尝试一下JetBrians WebStorm。</p>
+<p>一是听说它的代码补全很强，二是杭电学生认证后有正版的全家桶可以白嫖。</p>
+<h4 id="3-1-简易搭建一个本地缓存"><a href="#3-1-简易搭建一个本地缓存" class="headerlink" title="3.1 简易搭建一个本地缓存"></a>3.1 简易搭建一个本地缓存</h4><ol>
+<li>修改CSS的时候如果实时预览，每次修改保存都要重载页面，向api获取数据，不仅耗时而且浪费很多的使用次数，于是用Python在本地创建了一个服务器，作用就是读取预先保存的json再返回。测试的时候只要用本地的api就好了，反正不需要最新数据。</li>
+</ol>
+<ul>
+<li><p>需要注意的是，即使json和py文件都是utf8编码，也应该指定一下open函数的打开编码，比如在我这就默认用gbk打开了，显示“’gbk’ codec can’t decode byte 0xb4 in position 179: illegal multibyte sequence”。</p>
+</li>
+<li><p><strong>解决方案：在open()函数里传递encoding=’utf-8’的参数，例如：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">with open(&#x27;now.json&#x27;,encoding=&#x27;utf-8&#x27;) as f:</span><br></pre></td></tr></table></figure></li>
+</ul>
+<ol start="2">
+<li>由于WebStorm的本地调试服务器和Python的临时数据服务器不在一个端口上，请求会因为<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Access-Control-Allow-Origin">跨域</a>被阻止。为了测试需要，就要设置响应头。</li>
+</ol>
+<p><img src="//asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/CORS.png" alt="跨域请求被阻止"></p>
+<p>在Sanic中，<a target="_blank" rel="noopener" href="https://sanicframework.org/zh/guide/basics/middleware.html#%E5%90%AF%E7%94%A8-attaching-middleware">中间件(Middleware)</a>功能可以在请求到达路由的前后处理数据,以此来实现用户自定义的全局功能。在这里，因为需要进一步处理相应，所以我们将中间件绑定到“response”上。这里使用装饰器的形式实现。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@app.middleware(&#x27;response&#x27;)</span><br></pre></td></tr></table></figure>
+<p>然后，我们自定义一个函数设置服务器允许任何域访问资源（<strong>临时调试用，在生产环境请严格指定域来避免安全风险</strong>）。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">async def fkCORS(request, response):</span><br><span class="line">    response.headers[&quot;Access-Control-Allow-Origin&quot;] = &quot;*&quot;</span><br></pre></td></tr></table></figure>
+<p>现在整个中间件看起来是这样的</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@app.middleware(&#x27;response&#x27;)</span><br><span class="line">async def fkCORS(request, response):</span><br><span class="line">    response.headers[&quot;Access-Control-Allow-Origin&quot;] = &quot;*&quot;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>MDN上的<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Access-Control-Allow-Origin">“Access-Control-Allow-Origin”</a><br>Sanic 入门：<a target="_blank" rel="noopener" href="https://sanicframework.org/zh/guide/basics/middleware.html">中间件(Middleware)</a></p>
+</blockquote>
+<ol start="3">
+<li>Sanic的服务器会绑定主机名称，如果我们的局域网ip为10.66.233.77，但设置服务器host为localhost,port为8090，则不能通过10.66.233.77:8090访问到网站，只会显示拒绝连接。<br><img src="//asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E6%8B%92%E7%BB%9D%E8%BF%9E%E6%8E%A5.png" alt="host不对应导致拒绝连接"><br>如果想要用局域网设备访问，比如使用手机真机调试，<strong>我们应将host设置为局域网ip地址来规避这个问题</strong>。<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">    app.run(host=&#x27;10.66.233.77&#x27;,port=8090,debug=True)</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p><strong>注意，如果你的局域网ip地址不是固定的，记得手动在变更后修改。</strong></p>
+<h4 id="3-2-使用css计算器生成线性背景渐变图"><a href="#3-2-使用css计算器生成线性背景渐变图" class="headerlink" title="3.2 使用css计算器生成线性背景渐变图"></a>3.2 使用css计算器生成线性背景渐变图</h4><p>制作过程中为了顺畅衔接地图和天气卡片，需要给卡片所在容器设置一个由透明到渐变再到完全纯色的背景。同时卡片本身就需要一个渐变色。</p>
+<p>这里就用到了<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/CSS/gradient/linear-gradient()">“linear-gradient()”</a> 这个函数。</p>
+<p>linear-gradient() 函数用于创建一个表示两种或多种颜色线性渐变的图片。<br><strong>注意，因为是图片，所以只能被用于图片可以被使用的地方，而并不适用于background-color等属性</strong></p>
+<p>卡片的渐变比较简单，从只需要从左下角颜色渐变到右上的颜色即可：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#overviewCard&#123;</span><br><span class="line">    background-image: linear-gradient(to top right, #1C1D1F 0%, #353E4D 100%);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在背景用例中，我需要一部分纯透明区域，一部分渐变区域，一部分纯色区域。这些区域的范围是可以手动指定的，像这样：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#overviewContainer&#123;</span><br><span class="line">    background-image: linear-gradient(to bottom, transparent 0%, transparent 30%, #FFFFFF 50%, #FFFFFF 100%);</span><br><span class="line">&#125;   </span><br></pre></td></tr></table></figure>
+<p>实际效果如下：<br><img src="//asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/css%E8%AE%A1%E7%AE%97%E8%83%8C%E6%99%AF%E6%B8%90%E5%8F%98.png" alt="css计算背景渐变.png"></p>
+<h4 id="3-3-使用三目运算符动态分配类名"><a href="#3-3-使用三目运算符动态分配类名" class="headerlink" title="3.3 使用三目运算符动态分配类名"></a>3.3 使用三目运算符动态分配类名</h4><p>在24小时预报和7天预报中，为了将相邻两个容器区分开来增加可读性，需要在生成html的时候动态指配两种class<br>刚好上周的C语言课程学到了三目运算符，可以迁移到js上来（在js里似乎叫<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Conditional_Operator"><em>三元运算符</em>或者<em>条件运算符</em></a>）。</p>
+<p>因为具体用法相同，在C语言的课程上讲过，就不再做解释了，相关代码如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">let html = &quot;&quot;;</span><br><span class="line">for (let i = 0;i &lt; Object.keys(foo).length;i++)&#123; //Object.keys().length用来获取json中的项数</span><br><span class="line">        html += `&lt;div class=&quot;$&#123;(i % 2 == 0)?&quot;dark&quot;:&quot;light&quot;&#125;&quot;&gt; //区分两种容器的颜色</span><br><span class="line">                                &lt;div&gt;...&lt;/div&gt;</span><br><span class="line">                                ...</span><br><span class="line">                &lt;/div&gt;`;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>实际效果如下：<br><img src="//asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E4%B8%89%E5%85%83%E8%BF%90%E7%AE%97%E7%AC%A6%E5%8C%BA%E5%88%86%E5%AE%B9%E5%99%A8.png" alt="三元运算符区分容器"></p>
+<h4 id="3-4-使用css-var-函数实现暗黑主题"><a href="#3-4-使用css-var-函数实现暗黑主题" class="headerlink" title="3.4 使用css var()函数实现暗黑主题"></a>3.4 使用css var()函数实现暗黑主题</h4><p>不管是什么主题，整个网站都会遵循一定的配色标准，简单来说就是分门别类，不同作用的元素对应了不同的颜色。<br>当我们启用暗黑模式的时候，同一作用的元素需要切换颜色。</p>
+<p>如何不用写两套css就能实现这种效果呢？我们可以用<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/CSS/var()">var()函数</a>配合相应变量替代掉所有颜色区域。<br>相应的颜色可以定义在根元素节点上，比如&lt;html&gt;标签中，比如</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">:root&#123;</span><br><span class="line">    --tb: #000000; /*正常为黑*/</span><br><span class="line">    --tw: #FFFFFF; /*正常为白*/</span><br><span class="line">    --tt: #CCCCCC; /*tip提示语*/</span><br><span class="line">    --qicon: #000000; /*天气图标*/</span><br><span class="line">    --bgc: #FFFFFF; /*背景色*/</span><br><span class="line">    --bgg: #CCCCCC; /*背景分割色*/</span><br><span class="line">    --bgd: #f0f0f0; /*背景区分色*/</span><br><span class="line">    --bge1: #1C1D1F; /*背景强调色*/</span><br><span class="line">    --bge2: #353E4D;</span><br><span class="line">&#125;</span><br><span class="line">.dark&#123;</span><br><span class="line">    --tb: #E0E0E0;</span><br><span class="line">    --tw: #FFFFFF;</span><br><span class="line">    --tt: #777A81;</span><br><span class="line">    --qicon: #E0E0E0;</span><br><span class="line">    --bgc: #1C1D1F;</span><br><span class="line">    --bgg: #2A2F35;</span><br><span class="line">    --bgd: #2C2D31;</span><br><span class="line">    --bge1: #1C1D1F;</span><br><span class="line">    --bge2: #353E4D;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中:root 选择器匹配文档根元素。在网页中，根元素始终是&lt;html&gt;元素。<br>然后在需要切换颜色的地方，都应该显式指定相应的颜色变量：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">#overviewCard&#123;</span><br><span class="line">    background-image: linear-gradient(to top right, var(--bge1) 0%, var(--bge2) 100%);</span><br><span class="line">&#125;</span><br><span class="line">#overviewSummary&#123;</span><br><span class="line">    color: var(--tb);</span><br><span class="line">&#125;</span><br><span class="line">#detailContainer&#123;</span><br><span class="line">    background-color: var(--bgg);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>现在我们看到，默认情况下浏览器使用:root定义的颜色组：<br><img src="//asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/root%E9%A2%9C%E8%89%B2%E7%BB%84%E8%A2%AB%E5%90%AF%E7%94%A8.png" alt=":root颜色组被启用"><br>当我们给&lt;html&gt;添加类”dark”的时候，dark颜色组覆写了root颜色组的设置，&lt;html&gt;里的元素都会继承dark的变量设定：<br><img src="//asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/dark%E9%A2%9C%E8%89%B2%E7%BB%84%E8%A6%86%E7%9B%96%E4%BA%86root.png" alt=":root颜色组被启用"><br>这样就能实现颜色切换了。</p>
+<h4 id="3-5-动态切换图表的配色"><a href="#3-5-动态切换图表的配色" class="headerlink" title="3.5 动态切换图表的配色"></a>3.5 动态切换图表的配色</h4><p>很遗憾，解决了基本元素的配色问题，我们还需要单独解决图表配色。因为图表的颜色设定实际上是写在js的json中传递给函数的。<br>相关设置可以在ECharts的<a target="_blank" rel="noopener" href="https://echarts.apache.org/zh/option.html">配置项手册</a>中很详尽地看到，这里不再赘述<br>因为图标在创建后支持动态更改设定，所以我们使用darkCharts()和lightCharts()两个函数交替切换图表样式，<strong>缺省设置会保留之前的，但是要求格式完全一致</strong><br>下面是部分实现代码，可以看到非常难以阅读(这里我使用变量来代替所有相同部分以便后期快速更改)：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">function darkCharts()&#123;</span><br><span class="line">    let textColor = &quot;#E0E0E0&quot;;</span><br><span class="line">    let lineColor = &quot;#454545&quot;;</span><br><span class="line">    let borderColor = &quot;#000000&quot;;</span><br><span class="line">    let borderWidth = 1;</span><br><span class="line">    foreDaysChart.setOption(&#123;</span><br><span class="line">        yAxis: [</span><br><span class="line">            &#123;</span><br><span class="line">                splitLine:&#123;</span><br><span class="line">                    lineStyle: &#123;</span><br><span class="line">                        color: [lineColor],</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;,</span><br><span class="line">                axisLabel:&#123;</span><br><span class="line">                    textStyle: &#123;</span><br><span class="line">                        color: textColor,</span><br><span class="line">                        textBorderColor: borderColor,</span><br><span class="line">                        textBorderWidth: borderWidth,</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        ],</span><br><span class="line">        xAxis: [</span><br><span class="line">            &#123;</span><br><span class="line">                axisLabel:&#123;</span><br><span class="line">                    textStyle: &#123;</span><br><span class="line">                        color: textColor,</span><br><span class="line">                        textBorderColor: borderColor,</span><br><span class="line">                        textBorderWidth: borderWidth,</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        ],</span><br><span class="line">        series: [</span><br><span class="line">            &#123;</span><br><span class="line">                label: &#123;</span><br><span class="line">                    color: textColor,</span><br><span class="line">                    textBorderColor: borderColor,</span><br><span class="line">                    textBorderWidth: borderWidth,</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            &#123;</span><br><span class="line">                label: &#123;</span><br><span class="line">                    color: textColor,</span><br><span class="line">                    textBorderColor: borderColor,</span><br><span class="line">                    textBorderWidth: borderWidth,</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">        ]</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>吐槽：在新版的更新日志里已经不建议我使用textBorderColor和textBorderWidth两个属性，然而它并没有提供合适的替代属性，所以还是只能用着。害得我找了好久更优解。</strong></p>
+<h4 id="3-6-模拟-document-ready-与初始填充内容"><a href="#3-6-模拟-document-ready-与初始填充内容" class="headerlink" title="3.6 模拟$(document).ready()与初始填充内容"></a>3.6 模拟$(document).ready()与初始填充内容</h4><p>没时间做鱼骨屏了，而且提到的方便工具都在vue或者react体系下，我也用不了。</p>
+<p>于是我准备直接在页面加载时初始化一系列空数据，有总比没有强。然后在获取到具体数据以后或替换或更新。</p>
+<p>这里我发现，原生的js并没有提供像jQuery库一样方便的现成函数$(document).ready()。<br>但是我们可以通过判断<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/API/Document/readyState">document.readyState</a>来自己造一个轮子</p>
+<p>当document.readyState变为interactive（可交互）时，就代表html文档已经解析完成，但是诸如图像，样式表和框架之类的子资源仍在加载。实际上这相当于$(document).ready()的状态。</p>
+<p>当该属性值发生变化时，会在 document 对象上触发 readystatechange 事件，通过监听这个事件来运行回调函数，我们就可以模拟出一样的效果</p>
+<p>代码如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">document.onreadystatechange = function () &#123;</span><br><span class="line">    if (document.readyState === &quot;interactive&quot;) &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-7-localStorage储存偏好和原生实现类的增删改"><a href="#3-7-localStorage储存偏好和原生实现类的增删改" class="headerlink" title="3.7 localStorage储存偏好和原生实现类的增删改"></a>3.7 localStorage储存偏好和原生实现类的增删改</h4><p>这对我而言完全是完全是新东西了，以前只接触cookie。</p>
+<p>localStorage是持久化的本地存储，除非是通过js删除，或者清除浏览器缓存，否则数据是永远不会过期的。</p>
+<p>而cookie是用于客户端和服务端间的信息传递，每次请求都会被附带在请求头中，因此不适宜储存大量数据或者用户个人偏好。</p>
+<p>在这里我用localStorage储存了用户上次使用的主题偏好，可以在每次刷新时自动应用，防止闪瞎。<br>localStorage的增删改函数是原样从Sukka的博文<a target="_blank" rel="noopener" href="https://blog.skk.moe/post/hello-darkmode-my-old-friend/#">你好黑暗，我的老朋友 —— 为网站添加用户友好的深色模式支持</a>中抄来和简化的，我就不放代码了。</p>
+<p>在简化过程中准备直接给&lt;html&gt;标签设置颜色组属性，结果，很遗憾发现原生js没有现成的封装，于是<a target="_blank" rel="noopener" href="https://www.cnblogs.com/mbyund/p/6908959.html">从网上</a>又抄了一个。<br>稍微改了下，因为WebStorm疯狂说我代码不规范，变量乱声明。</p>
+<p><strong>技术细节到这里就结束了</strong></p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>终于写到后记了，写个博文用了我4个小时，累死了（所以博客才万年不更新的）。</p>
+<ul>
+<li>这次因为时间仓促，额外发挥的部分要求，比如响应式页面、骨架屏、toast用户提示、webpack打包等没有实现。</li>
+<li>整个网页是国庆花了整两天搓出来的，期间学习了ECharts、axios、localStorage、css函数等各种新知识。</li>
+<li>我没有预料到新知识的学习成本还是很高的，耗时非常严重。然后在一开始寻找合适api，选择合适图表库的时候走了很长的弯路。</li>
+<li>这次是我第一次写出一整个兼具美观和功能的网页，还是很有成就感的（但是真的累，两天速成不可取）</li>
+<li>这次是我第一次用原生js来实现一系列功能，感谢<a target="_blank" rel="noopener" href="https://github.com/nefe/You-Dont-Need-jQuery/blob/master/README.zh-CN.md">You-Dont-Need-jQuery</a>的指导，让我看到了一系列jQuery封装后各种功能本来的样子。有些地方，原生js也能一样简洁！</li>
+</ul>
+<p>最后，如果博文有错误或者错字的地方，欢迎指出（其实大概仅限于我认识的人，因为博客没有评论系统）<br>你可以发送邮件到asak&amp;irain.cc（请把&amp;换成@）<br>很荣幸能得到你的耐心阅读！</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/post/%E8%B4%AD%E4%B9%B0%E4%BA%86dolby-atoms-for-headphones%EF%BC%8C%E7%88%BD%E5%88%B0%E4%BA%86/" rel="prev" title="购买了Dolby Atoms for Headphones，爽到了">
+      <i class="fa fa-chevron-left"></i> 购买了Dolby Atoms for Headphones，爽到了
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0-%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">0.前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E6%95%B0%E6%8D%AE%E6%BA%90"><span class="nav-number">2.</span> <span class="nav-text">1.数据源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E6%9E%84%E6%80%9D"><span class="nav-number">3.</span> <span class="nav-text">2.构思</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E5%8A%A8%E6%89%8B"><span class="nav-number">4.</span> <span class="nav-text">3.动手</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-0-IDE%E9%80%89%E6%8B%A9"><span class="nav-number">4.0.1.</span> <span class="nav-text">3.0 IDE选择</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1-%E7%AE%80%E6%98%93%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E6%9C%AC%E5%9C%B0%E7%BC%93%E5%AD%98"><span class="nav-number">4.0.2.</span> <span class="nav-text">3.1 简易搭建一个本地缓存</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2-%E4%BD%BF%E7%94%A8css%E8%AE%A1%E7%AE%97%E5%99%A8%E7%94%9F%E6%88%90%E7%BA%BF%E6%80%A7%E8%83%8C%E6%99%AF%E6%B8%90%E5%8F%98%E5%9B%BE"><span class="nav-number">4.0.3.</span> <span class="nav-text">3.2 使用css计算器生成线性背景渐变图</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-3-%E4%BD%BF%E7%94%A8%E4%B8%89%E7%9B%AE%E8%BF%90%E7%AE%97%E7%AC%A6%E5%8A%A8%E6%80%81%E5%88%86%E9%85%8D%E7%B1%BB%E5%90%8D"><span class="nav-number">4.0.4.</span> <span class="nav-text">3.3 使用三目运算符动态分配类名</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-4-%E4%BD%BF%E7%94%A8css-var-%E5%87%BD%E6%95%B0%E5%AE%9E%E7%8E%B0%E6%9A%97%E9%BB%91%E4%B8%BB%E9%A2%98"><span class="nav-number">4.0.5.</span> <span class="nav-text">3.4 使用css var()函数实现暗黑主题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-5-%E5%8A%A8%E6%80%81%E5%88%87%E6%8D%A2%E5%9B%BE%E8%A1%A8%E7%9A%84%E9%85%8D%E8%89%B2"><span class="nav-number">4.0.6.</span> <span class="nav-text">3.5 动态切换图表的配色</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-6-%E6%A8%A1%E6%8B%9F-document-ready-%E4%B8%8E%E5%88%9D%E5%A7%8B%E5%A1%AB%E5%85%85%E5%86%85%E5%AE%B9"><span class="nav-number">4.0.7.</span> <span class="nav-text">3.6 模拟$(document).ready()与初始填充内容</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-7-localStorage%E5%82%A8%E5%AD%98%E5%81%8F%E5%A5%BD%E5%92%8C%E5%8E%9F%E7%94%9F%E5%AE%9E%E7%8E%B0%E7%B1%BB%E7%9A%84%E5%A2%9E%E5%88%A0%E6%94%B9"><span class="nav-number">4.0.8.</span> <span class="nav-text">3.7 localStorage储存偏好和原生实现类的增删改</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%8E%E8%AE%B0"><span class="nav-number">5.</span> <span class="nav-text">后记</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">AsakiRain</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">37</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+  <div class="beian"><a href="https://beian.miit.gov.cn/" rel="noopener" target="_blank">浙ICP备2021025188号-1 </a>
+      <img src="/assets/beian/beian.png" style="display: inline-block;"><a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=33021202001661" rel="noopener" target="_blank">浙公网安备 33021202001661号 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">AsakiRain</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
