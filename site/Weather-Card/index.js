@@ -58,17 +58,36 @@ document.onreadystatechange = function () {//模拟$(document).ready()
     }
 }
 
+function geoSrv(){
+    if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(function(position){
+            LONGITUDE = position.coords.longitude; //十进制经度
+            LATITUDE = position.coords.latitude; //十进制纬度
+            Promise.all([getData("https://geoapi.qweather.com/v2/city/lookup",`${LONGITUDE},${LATITUDE}`)])
+                .then(function (results) {
+                    LOCATION = results[0]['location'][0]['id'];
+                    document.getElementById("area").innerHTML = results[0]['location'][0]['name'];
+                    refresh()
+                    return;
+                })
+        },function (err){
+            console.log(err.code + "：" + err.message)
+            alert("定位失败或位置服务被禁用，将显示杭州市的天气！");
+            LONGITUDE = 120.15358;
+            LATITUDE = 30.28745;//杭州的经纬度
+            LOCATION = 101210101;
+            refresh()
+        })
+    }
+    else {
+        alert("您的浏览器不支持geolocation，将显示杭州市的天气！");
+        LONGITUDE = 120.15358;
+        LATITUDE = 30.28745;
+        LOCATION = 101210101;
+        refresh()
+    }
+}
 function init(){
-    var layer = new AMap.TileLayer({
-        zooms:[3,20],    //可见级别
-        visible:true,    //是否可见
-        opacity:1,       //透明度
-        zIndex: 1,         //叠加层级
-    })
-    var map = new AMap.Map('amapContainer',{
-        layers:[layer] //当只想显示标准图层时layers属性可缺省
-    });
-
     let foreHoursHtml = "";
     for (let i = 0;i < 24;i++){
         foreHoursHtml += `<div class="foreHoursEach ${(i % 2 == 0)?"foreHoursEachDark":"foreHoursEachLight"}">
@@ -250,7 +269,7 @@ function init(){
             darkCharts();
         }
     }
-    refresh();
+    geoSrv();
 }
 function darkCharts(){
     let textColor = "#E0E0E0";
@@ -430,21 +449,34 @@ function lightCharts(){
         ]
     })
 }
-function refresh(){
+function setAMap(longitude,latitude){
+    var layer = new AMap.TileLayer({
+        zooms:[3,20],    //可见级别
+        visible:true,    //是否可见
+        opacity:1,       //透明度
+        zIndex: 1,         //叠加层级
+    })
+    var map = new AMap.Map('amapContainer',{
+        layers:[layer],//当只想显示标准图层时layers属性可缺省
+        center: [longitude,latitude],
+    });
+}
+async function refresh(){
     document.getElementById("updateTime").innerHTML = "获取数据...";
+    setAMap(LONGITUDE,LATITUDE);
     Promise.all([
-                getData("https://devapi.qweather.com/v7/weather/now"),
-                getData("https://devapi.qweather.com/v7/weather/24h"),
-                getData("https://devapi.qweather.com/v7/weather/7d"),
-                getData("https://devapi.qweather.com/v7/air/now")
+                getData("https://devapi.qweather.com/v7/weather/now",LOCATION),
+                getData("https://devapi.qweather.com/v7/weather/24h",LOCATION),
+                getData("https://devapi.qweather.com/v7/weather/7d",LOCATION),
+                getData("https://devapi.qweather.com/v7/air/now",LOCATION)
             ]).then(function (results) {
                         parseData(results);
                     });
 }
-function getData(url) {
+function getData(url,location) {
     return axios.get(url, {
             params: {
-                location : 101210111,
+                location : location,
                 key: 'f4adf1c2b510497e92ce1a5b6acccb1d'
             },
         }).then(function (response) {
