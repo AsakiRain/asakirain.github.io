@@ -103,29 +103,32 @@ a{
     padding: 5px 0 5px 15px;
     font-size: 12px;
 }
-#link_about,#link_help{
+#linkAbout,#linkHelp{
     font-weight: bold;
 
 }
-#link_about{
-    margin-top: 20px!important;
+#leftSidebar>h2:nth-last-of-type(2){
+    margin: 20px 0 0 0;
 }
-#link_about>a{
-    color: #0479A7!important;
-    font-size: 14px!important;
+#linkAbout>a{
+    color: #0479A7;
+    font-size: 14px;
     padding: 0;
     display: inline;
 }
-#link_help>a{
-    color: #0479A7!important;
-    font-size: 14px!important;
+#leftSidebar>h2:nth-last-of-type(1){
+    margin: 0;
+}
+#linkHelp>a{
+    color: #0479A7;
+    font-size: 14px;
     padding: 0;
     display: inline;
 }
-#link_about>a:hover{
+#linkAbout>a:hover{
     border-bottom: 1px solid #000000;
 }
-#link_help>a:hover{
+#linkHelp>a:hover{
     border-bottom: 1px solid #000000;
 }
 
@@ -147,12 +150,12 @@ a{
     font-size: 18px;
     color: #000000;
 }
-#d1{
+#mainContent>div:nth-of-type(1){
     text-align: center;
     font-size: 18px;
     border-bottom: 1px solid #AAAAAA;
-    padding-bottom: 10px!important;
-    padding-top: 10px!important;
+    padding-bottom: 10px;
+    padding-top: 10px;
 }
 .idea{
     border-bottom: 1px solid #AAAAAA;
@@ -189,9 +192,9 @@ a{
 #d7{
     background-image: url("./ui2017/icon7.png");
 }
-#d8{
+#mainContent>div:nth-last-of-type(3){
     background-image: url("./ui2017/icon8.png");
-    border: none!important;
+    border: none;
 }
 #d9{
     background-image: url("./ui2017/icon9.png");
@@ -212,12 +215,12 @@ a{
 .link a:hover{
     color: #900B09;
 }
-#d9,#d10{
+#mainContent>div:nth-last-of-type(1),#mainContent>div:nth-last-of-type(2){
     width: 290px;
     display: inline-block;
-    margin-left: 80px!important;
-    font-size: 14px!important;
-    line-height: 0.6!important;
+    margin-left: 80px;
+    font-size: 14px;
+    line-height: 0.6;
     margin-bottom: 60px;
     border: none;
 }
