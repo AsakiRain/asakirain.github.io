@@ -1,0 +1,48 @@
+input, textarea {
+    border-radius: 10px;
+    border: 2px #80CFED solid;
+    background-color: #FFFFFF;
+    padding-left: 10px;
+    padding-right: 10px;
+    outline: none;
+    font-size: 0.8em;
+    line-height: 30px;
+    transition: border 0.2s ease-in-out;
+}
+
+input {
+    height: 30px;
+}
+
+input:focus {
+    border: 2px #2F99E5 solid;
+}
+
+textarea:focus {
+    border: 2px #2F99E5 solid;
+}
+
+.inputInvalid {
+    border: 2px #FF0000 solid;
+}
+
+
+.nCommon {
+    position: fixed;
+    left: 0;
+    right: 0;
+    padding: 15px;
+    font-size: 1.8em;
+    color: #FFFFFF;
+    text-align: center;
+    transition: top 0.4s ease-in-out, opacity 0.4s ease-out;
+    z-index: 999;
+}
+
+.nFail {
+    background-color: #e64343;
+}
+
+.nSuccess {
+    background-color: #64aa3c;
+}

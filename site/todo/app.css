@@ -1,0 +1,305 @@
+html, body {
+    overflow-x: hidden;
+    box-sizing: border-box;
+    font-size: 10px;
+    min-width: 250px;
+}
+
+/*@media screen and (max-width: 850px) {*/
+body::before {
+    content: '';
+    background-image: url("./FEBeKPZaUAAWgpm.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    filter: brightness(120%) blur(100px);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+}
+
+#wrapper {
+    transition: opacity 0.4s ease-in-out;
+}
+
+.wrapperInactive {
+    opacity: 0 !important;
+}
+
+#bannerWrapper {
+    display: flex;
+    align-items: center;
+}
+
+.banner {
+    margin: 30px 25px 30px 25px;
+}
+
+.mainTitle {
+    flex-grow: 1;
+    font-size: 3em;
+}
+
+.subTitle {
+    font-size: 2em;
+}
+
+#btnLogout, #btnCancel, #btnConfirmLogout {
+    font-size: 0.8em;
+    padding: 3px 12px 4px 12px;
+}
+
+#categoryWrapper {
+    padding-top: 3px;
+    padding-bottom: 3px;
+    border-radius: 200px;
+    background-color: #2F99E5;
+    box-shadow: rgba(0, 0, 0, 0.2) -2px -2px 5px inset;
+    display: flex;
+    justify-content: space-around;
+    justify-items: center;
+    width: 250px;
+    margin: 5px auto 25px auto;
+}
+
+.category {
+    font-size: 1.7em;
+    padding: 3px 15px 4px 15px;
+    border-radius: 200px;
+    cursor: pointer;
+}
+
+.category:nth-child(1) {
+    margin-left: 3px;
+}
+
+.category:nth-last-child(1) {
+    margin-right: 3px;
+}
+
+.category.catSelected {
+    background-image: linear-gradient(to right, #85D0E7 0%, #80CFED 100%);
+    box-shadow: rgba(0, 0, 0, 0.2) 2px 2px 5px;
+}
+
+#scrollWrapper {
+    width: 300vw;
+    display: flex;
+    position: relative;
+    transition: left 0.4s ease-in-out;
+    overflow-x: hidden;
+}
+
+.pageTodo {
+    left: 0;
+}
+
+.pageDoing {
+    left: -100vw;
+}
+
+.pageDone {
+    left: -200vw;
+}
+
+.todoSection {
+    width: 100vw;
+    opacity: 0;
+    transition: opacity 0.4s linear;
+}
+
+.activeSection {
+    opacity: 100%;
+}
+
+.eachWrapper {
+    min-width: 210px;
+    margin: 25px;
+    font-size: 1.6em;
+    display: flex;
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 20px;
+}
+
+.todoWrapper {
+    padding: 20px 0 20px 20px;
+    flex-grow: 1;
+}
+
+.todoTitle {
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+.todoTime {
+    font-size: 0.8em;
+    color: #8c8c8c;
+}
+
+.funcWrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+.funcWrapper > div {
+    width: 65px;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.funcWrapper > div > span {
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.funcMove {
+    background-color: rgba(100, 170, 60, 0.8);
+    border-top-right-radius: 20px;
+}
+
+.funcEdit {
+    background-color: rgba(47, 153, 229, 0.8);
+}
+
+.funcDelete {
+    background-color: rgba(230, 67, 67, 0.8);
+    border-bottom-right-radius: 20px;
+}
+
+#addBtnWrapper, #addAddWrapper {
+    width: 100vw;
+    position: fixed;
+    top: 90%
+}
+
+#btnAdd, #addBtnSubmit {
+    background-color: #2F99E5;
+    border-radius: 100px;
+    height: 40px;
+    width: 250px;
+    margin: 0 auto;
+    font-size: 2em;
+    text-align: center;
+    line-height: 40px;
+    cursor: pointer;
+    user-select: none;
+}
+
+#addWrapper {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -999;
+    transition: opacity 0.4s ease-in-out;
+}
+
+.addWrapperActive {
+    opacity: 100 !important;
+    z-index: 2 !important;
+}
+
+#addMainWrapper {
+    width: 100vw;
+    margin: 0 auto;
+}
+
+#addBannerWrapper {
+    display: flex;
+    align-items: center;
+}
+
+#addMainTitle {
+    flex-grow: 1;
+}
+
+#addCtrlClose, #btnLogout, #btnCancel, #btnConfirmLogout {
+    background-color: #2F99E5;
+    border-radius: 100px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+#addCtrlClose {
+    padding: 5px 20px 6px 20px;
+}
+
+#addFormWrapper {
+    font-size: 2em;
+    padding: 0 25px 0 25px;
+    display: flex;
+    flex-direction: column;
+}
+
+#addFormWrapper > input {
+    margin: 25px 0 25px 0;
+}
+
+textarea {
+    max-width: 367px;
+    height: 150px;
+}
+
+#addTodoTime {
+    margin-bottom: 80px !important;
+}
+
+.nCommon {
+
+}
+
+.nInactive {
+    top: -50px;
+    opacity: 0;
+}
+
+.nActive {
+    opacity: 100;
+    top: 0;
+}
+
+/*}*/
+
+@media screen and (min-width: 441px) {
+    :root {
+        --w: 441px;
+    }
+
+    #wrapper {
+        width: var(--w);
+        margin: 0 auto;
+    }
+
+    #scrollWrapper {
+        width: calc(3 * var(--w));
+    }
+
+    .pageTodo {
+        left: 0;
+    }
+
+    .pageDoing {
+        left: calc(-1 * var(--w));
+    }
+
+    .pageDone {
+        left: calc(-2 * var(--w));
+    }
+
+    #addBtnWrapper, #addAddWrapper {
+        width: var(--w);
+    }
+
+    #addMainWrapper {
+        width: var(--w);
+    }
+}

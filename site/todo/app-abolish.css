@@ -1,0 +1,161 @@
+html, body {
+    box-sizing: border-box;
+    font-size: 10px;
+    min-width: 300px;
+}
+
+@media screen and (max-width: 850px) {
+    #wrapper::before {
+        content: '';
+        background-image: url("./FEBeKPZaUAAWgpm.jpg");
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        filter: brightness(120%) blur(100px);
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: -1;
+    }
+
+    #bannerWrapper {
+        display: flex;
+        align-items: center;
+        padding: 20px;
+    }
+
+    .mainTitle {
+        flex-grow: 1;
+        font-size: 3em;
+    }
+
+    #userTitle {
+        font-size: 2em;
+    }
+
+    #categoryWrapper {
+        margin: 20px 25px;
+        padding-top: 3px;
+        padding-bottom: 3px;
+        border-radius: 200px;
+        background-color: #2F99E5;
+        box-shadow: rgba(0, 0, 0, 0.2) -2px -2px 5px inset;
+        display: flex;
+        justify-content: space-around;
+        justify-items: center;
+        min-width: 250px;
+    }
+
+    .category {
+        font-size: 1.8em;
+        padding: 3px 15px 4px 15px;
+        border-radius: 200px;
+        cursor: pointer;
+        line-height: 1;
+    }
+
+    .category:nth-child(1) {
+        margin-left: 3px;
+    }
+
+    .category:nth-last-child(1) {
+        margin-right: 3px;
+    }
+
+    .category.catSelected {
+        background-image: linear-gradient(to right, #85D0E7 0%, #80CFED 100%);
+        box-shadow: rgba(0, 0, 0, 0.2) 2px 2px 5px;
+    }
+
+    .todoSection {
+        position: absolute;
+        z-index: -1;
+        top: 145px;
+        opacity: 0;
+        transition: 0.4s ease-in-out;
+        padding-top: 20px;
+        padding-bottom: 20px;
+        left: 0;
+        right: 0;
+    }
+
+    .leftSection {
+        left: -100vw;
+        right: 100vw;
+    }
+
+    .rightSection {
+        left: 100vw;
+        right: -100vw;
+    }
+
+    .activeSection {
+        left: 0;
+        right: 0;
+        opacity: 100%;
+        position: static;
+        z-index: 1;
+    }
+
+    .eachWrapper {
+        margin: 0 20px 20px 20px;
+        font-size: 1.6em;
+        display: flex;
+        background-color: rgba(255, 255, 255, 0.6);
+        border-radius: 20px;
+    }
+
+    .todoWrapper {
+        padding: 20px 0 20px 15px;
+        flex-grow: 1;
+    }
+
+    .todoTitle {
+        font-size: 1.3em;
+        font-weight: bold;
+    }
+
+    .todoTime {
+        font-size: 0.8em;
+        color: #8c8c8c;
+    }
+
+    .funcWrapper {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .funcWrapper > div {
+        width: 65px;
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .funcWrapper > div > p {
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+
+    .funcMove {
+        background-color: rgba(100, 170, 60, 0.8);
+        border-top-right-radius: 20px;
+    }
+
+    .funcEdit {
+        background-color: rgba(47, 153, 229, 0.8);
+    }
+
+    .funcDelete {
+        background-color: rgba(230, 67, 67, 0.8);
+        border-bottom-right-radius: 20px;
+    }
+}
+
+@media screen and (min-width: 850px) {
+
+}

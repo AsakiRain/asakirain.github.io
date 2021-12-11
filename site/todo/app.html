@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-ch">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+          name="viewport">
+    <meta content="ie=edge" http-equiv="X-UA-Compatible">
+    <title>TODOList</title>
+    <link href="https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.css" rel="stylesheet">
+    <link href="app.css" rel="stylesheet">
+    <link href="common.css" rel="stylesheet">
+    <script src="common.js"></script>
+</head>
+<body>
+<div id="wrapper">
+    <div class="banner" id="bannerWrapper">
+        <span class="mainTitle" id="mainTitle">TODOList</span>
+        <span class="subTitle" id="userTitle"><span id="btnLogout">登出</span></span>
+    </div>
+    <div id="categoryWrapper">
+        <span class="category catSelected" id="catTodo">未开始</span>
+        <span class="category" id="catDoing">进行中</span>
+        <span class="category" id="catDone">已完成</span>
+    </div>
+    <div class="pageTodo" id="scrollWrapper">
+        <div class="todoSection activeSection" id="todoWrapper"></div>
+        <div class="todoSection" id="doingWrapper"></div>
+        <div class="todoSection" id="doneWrapper"></div>
+    </div>
+    <div id="addBtnWrapper">
+        <div id="btnAdd">新增事项</div>
+    </div>
+</div>
+<div class="addWrapper" id="addWrapper">
+    <div id="addMainWrapper">
+        <div class="banner" id="addBannerWrapper">
+            <div class="mainTitle" id="addMainTitle">添加事项</div>
+            <div class="subTitle" id="addCtrlClose">关闭</div>
+        </div>
+        <div id="addFormWrapper">
+            <input id="addTodoTitle" placeholder="输入标题" type="text">
+            <textarea id="addTodoDescription" placeholder="如果有描述，请输入"></textarea>
+            <input id="addTodoTime" placeholder="可以输入结束时间" type="datetime-local">
+        </div>
+        <div id="addAddWrapper">
+            <div id="addBtnSubmit">完成</div>
+        </div>
+    </div>
+</div>
+<div id="nWrapper"></div>
+<script src="app.js"></script>
+</body>
+</html>

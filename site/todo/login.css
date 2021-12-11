@@ -1,4 +1,4 @@
-html,body{
+html, body {
     position: absolute;
     top: 0;
     bottom: 0;
@@ -7,40 +7,27 @@ html,body{
     box-sizing: border-box;
     font-size: 10px;
 }
-#form{
+
+#form {
     font-size: 2em;
     display: grid;
     grid-template-columns: 25% 75%;
     grid-row-gap: 5px;
     align-items: center;
 }
-.keys{
+
+.keys {
     font-size: 1.1em;
 }
-.input{
-    height: 30px;
-    border-radius: 10px;
-    border: 2px #80CFED solid;
-    background-color: #FFFFFF;
-    padding-left: 10px;
-    padding-right: 10px;
-    transition: 0.2s ease-in-out;
-    outline: none;
-    font-size: 0.8em;
-    line-height: 30px;
-}
-.inputInvalid{
-    border: 2px #FF0000 solid;
-}
-.input:focus{
-    border: 2px #2F99E5 solid;
-}
-#codeWrapper{
+
+
+#codeWrapper {
     display: flex;
     align-items: center;
     gap: 10px;
 }
-#textCode{
+
+#textCode {
     height: 30px;
     flex-grow: 1;
     width: 100px;
@@ -48,7 +35,8 @@ html,body{
     padding-right: 10px;
 
 }
-#btnGetCode{
+
+#btnGetCode {
     background-color: #80CFED;
     border-radius: 10px;
     height: 36px;
@@ -61,11 +49,13 @@ html,body{
     transition: 0.2s ease-in-out;
     user-select: none;
 }
-#btnGetCode:hover{
+
+#btnGetCode:hover {
     background-color: #2F99E5;
     color: #FFFFFF;
 }
-#btnSubmit{
+
+#btnSubmit {
     background-color: #80CFED;
     border-radius: 10px;
     height: 40px;
@@ -76,28 +66,14 @@ html,body{
     user-select: none;
     transition: 0.2s ease-in-out;
 }
-#btnSubmit:hover{
+
+#btnSubmit:hover {
     background-color: #2F99E5;
     color: #FFFFFF;
 }
-.nCommon{
-    position: fixed;
-    left: 0;
-    right: 0;
-    padding: 15px;
-    font-size: 1.8em;
-    color: #FFFFFF;
-    text-align: center;
-    transition: top 0.4s ease-in-out, opacity 0.4s ease-out;
-}
-.nFail{
-    background-color: #e64343;
-}
-.nSuccess{
-    background-color: #64aa3c;
-}
-@media screen and (max-width: 850px){
-    body,html{
+
+@media screen and (max-width: 850px) {
+    body, html {
         background-image: url("./FEBeKPZaUAAWgpm.jpg");
         background-position: center;
         background-repeat: no-repeat;
@@ -105,45 +81,55 @@ html,body{
         display: flex;
         flex-direction: row;
     }
-    .mainTitle{
+
+    .mainTitle {
         margin-top: 40px;
         font-size: 3.5em;
     }
-    #Wrapper{
+
+    #Wrapper {
         background-color: rgba(255, 255, 255, 0.5);
         flex-grow: 1;
         padding: 20px;
     }
-    #form{
+
+    #form {
         margin-top: 60px;
     }
-    #btnSubmit{
+
+    #btnSubmit {
         margin-top: 80px;
     }
-    .nCommon{
+
+    .nCommon {
     }
-    .nInactive{
+
+    .nInactive {
         top: -50px;
         opacity: 0;
     }
-    .nActive{
+
+    .nActive {
         opacity: 100;
-        top: 0px;
+        top: 0;
     }
 }
 
-@media screen and (min-width:850px){
-    html,body{
+@media screen and (min-width: 850px) {
+    html, body {
         background-image: linear-gradient(to bottom right, #80CFED 0%, #85D0E7 35%, #2F99E5 100%);
         background-repeat: no-repeat;
     }
-    .mainTitle{
+
+    .mainTitle {
         font-size: 4em;
     }
-    .mainTitle>div{
+
+    .mainTitle > div {
         margin-bottom: 10px;
     }
-    #Wrapper{
+
+    #Wrapper {
         margin: 0 auto;
         margin-top: 100px;
         border-radius: 10px;
@@ -152,18 +138,22 @@ html,body{
         height: 600px;
         display: flex;
     }
-    #formWrapper{
+
+    #formWrapper {
         width: 50%;
         padding: 50px;
         align-self: center;
     }
-    #form{
+
+    #form {
         margin-top: 40px;
     }
-    #btnSubmit{
+
+    #btnSubmit {
         margin-top: 50px;
     }
-    #picWrapper{
+
+    #picWrapper {
         width: 50%;
         background-image: url("./FEBeKPZaUAAWgpm.jpg");
         background-repeat: no-repeat;
@@ -172,17 +162,20 @@ html,body{
         border-bottom-left-radius: 10px;
         border-top-left-radius: 10px;
     }
-    .nCommon{
+
+    .nCommon {
         border-radius: 10px;
         width: 500px;
         margin: 0 auto;
         box-shadow: rgba(69, 69, 69, 0.8) 3px 3px 10px;
     }
-    .nInactive{
+
+    .nInactive {
         top: -50px;
         opacity: 0;
     }
-    .nActive{
+
+    .nActive {
         opacity: 100;
         top: 20px;
     }
