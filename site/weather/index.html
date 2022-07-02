@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns="http://www.w3.org/1999/html">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"
+    />
+    <title>天气组件</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/qweather-icons@1.0.2/font/qweather-icons.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.2.1/dist/echarts.min.js"></script>
+    <script
+      type="text/javascript"
+      src="https://webapi.amap.com/maps?v=1.4.15&key=cbd4dec2c615d9be71f8f72fcb45fa47"
+    ></script>
+    <link rel="stylesheet" href="./index.css" />
+    <script src="./index.js"></script>
+  </head>
+  <body>
+    <div id="amapContainer"></div>
+    <div id="themeSwitcher">切换主题</div>
+    <div id="main">
+      <div id="overviewContainer">
+        <div id="overviewCard">
+          <div id="area">杭州</div>
+          <div id="updateTime">点击加载</div>
+          <div id="nowTemp">N/A</div>
+          <div id="nowWeather">当前天气</div>
+          <div id="nowPlus">
+            <span id="nowAir">空气质量</span>&nbsp&nbsp<span id="nowWind"
+              >风力风向</span
+            >
+          </div>
+          <div id="nowTips">
+            <span class="tipsTitle">紫外线</span>&nbsp&nbsp<span id="nowUV"
+              ><span class="qi-unknown"></span></span
+            >&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+            <span class="tipsTitle">湿度</span>&nbsp&nbsp<span id="nowHumidity"
+              ><span class="qi-unknown"></span></span
+            >&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+            <span class="tipsTitle">大气压</span>&nbsp&nbsp<span
+              id="nowPressure"
+              ><span class="qi-unknown"></span
+            ></span>
+          </div>
+        </div>
+        <div id="overviewSummary">获取描述中...</div>
+      </div>
+      <div id="detailContainer">
+        <div id="foreHours" class="section">
+          <div id="foreHoursTitle" class="sectionTitle">24小时预报</div>
+          <div id="foreHoursScroll"></div>
+        </div>
+        <div id="foreDays" class="section">
+          <div id="foreDaysTitle" class="sectionTitle">未来预报</div>
+          <div id="foreDaysScroll"></div>
+          <div id="foreDaysChart"></div>
+        </div>
+        <div id="air" class="section">
+          <div id="airTitle" class="sectionTitle">空气质量</div>
+          <div id="airContainer">
+            <div id="airChart"></div>
+            <div id="pollutionChart"></div>
+            <div class="subTitle">AQI指数</div>
+            <div class="subTitle">污染物指标</div>
+          </div>
+        </div>
+        <div id="today" class="section">
+          <div class="sectionTitle">今日详情</div>
+          <div id="todayItemContainer">
+            <div class="todayItem">
+              <div class="qicon todayQicon qi-sunny"></div>
+              <div id="uvIndex"><span class="qi-unknown-fill"></span></div>
+              <div class="thirdTitle">紫外线</div>
+            </div>
+            <div class="todayItem">
+              <div class="qicon todayQicon qi-hot"></div>
+              <div id="feelsLike"><span class="qi-unknown-fill"></span></div>
+              <div class="thirdTitle">体感温度</div>
+            </div>
+            <div class="todayItem">
+              <div class="qicon todayQicon qi-drizzle-rain"></div>
+              <div id="precip"><span class="qi-unknown-fill"></span></div>
+              <div class="thirdTitle">降水量</div>
+            </div>
+            <div class="todayItem">
+              <div class="qicon todayQicon qi-rain"></div>
+              <div id="humidity"><span class="qi-unknown-fill"></span></div>
+              <div class="thirdTitle">湿度</div>
+            </div>
+            <div class="todayItem">
+              <div class="qicon todayQicon qi-haze"></div>
+              <div id="pressure"><span class="qi-unknown-fill"></span></div>
+              <div class="thirdTitle">大气压</div>
+            </div>
+            <div class="todayItem">
+              <div class="qicon todayQicon qi-overcast"></div>
+              <div id="vis"><span class="qi-unknown-fill"></span></div>
+              <div class="thirdTitle">能见度</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="msgContainer"></div>
+  </body>
+</html>

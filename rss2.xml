@@ -1,0 +1,992 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0"
+  xmlns:atom="http://www.w3.org/2005/Atom"
+  xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>RainChen网络名片</title>
+    <link>https://asakirain.github.io/</link>
+    
+    <atom:link href="https://asakirain.github.io/rss2.xml" rel="self" type="application/rss+xml"/>
+    
+    <description></description>
+    <pubDate>Sat, 02 Jul 2022 14:23:24 GMT</pubDate>
+    <generator>http://hexo.io/</generator>
+    
+    <item>
+      <title>web天气卡片开发记录</title>
+      <link>https://asakirain.github.io/post/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/</link>
+      <guid>https://asakirain.github.io/post/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/</guid>
+      <pubDate>Tue, 05 Oct 2021 02:04:32 GMT</pubDate>
+      
+        
+        
+      <description>&lt;h2 id=&quot;成品网站可以在这里查看-请使用手机&quot;&gt;&lt;a href=&quot;#成品网站可以在这里查看-请使用手机&quot; class=&quot;headerlink&quot; title=&quot;成品网站可以在这里查看(请使用手机)&quot;&gt;&lt;/a&gt;成品网站可以在&lt;a href=&quot;/site/weather/&quot;&gt;这里</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<h2 id="成品网站可以在这里查看-请使用手机"><a href="#成品网站可以在这里查看-请使用手机" class="headerlink" title="成品网站可以在这里查看(请使用手机)"></a>成品网站可以在<a href="/site/weather/">这里</a>查看(请使用手机)</h2><h2 id="0-前言"><a href="#0-前言" class="headerlink" title="0.前言"></a>0.前言</h2><p>10.4晚上，写完高数线代作业终于空下来了，出了趟门后准备开始写助手的任务。</p><p>第一项搭建个人博客的任务暑假刚好做完，省事了。我选择第二项制作天气卡片的任务。因为要求把开发过程做一篇记录发表，于是就有了这篇文章。</p><h2 id="1-数据源"><a href="#1-数据源" class="headerlink" title="1.数据源"></a>1.数据源</h2><p>拿到手的时候任务介绍里指路了可以使用<a href="https://lbs.amap.com/api/">高德</a>或者<a href="https://open.caiyunapp.com/%E5%BD%A9%E4%BA%91%E5%A4%A9%E6%B0%94_API">彩云</a>的天气api，但是恰逢国庆，彩云开放平台审核放假了，一直是Pending Review的状态，于是我转向高德。</p><p>高德的api很简单，一下子就弄懂，可惜它提供的更多是地图方面的服务，天气数据实在太有限了，不足以完成进阶任务。找了一晚上，选定了<a href="https://dev.qweather.com/">和风天气API</a>，对于个人开发者的优待完全满足了我的需求。<br><img src="//asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%9A%E4%BB%B7.png" alt="定价"><br>认证个人开发者有也非常快，应该是采用了AI审核，我凌晨发出申请，半分钟后就通过了，太感动了。<br><img src="//asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%A1%E6%A0%B8%E6%88%90%E5%8A%9F%E9%82%AE%E4%BB%B6.png" alt="审核成功邮件"><br>可靠的数据源到手，着手开始制作。</p><h2 id="2-构思"><a href="#2-构思" class="headerlink" title="2.构思"></a>2.构思</h2><ol><li>任务建议使用原生js实现，且没有指定平台。鉴于助手在手机端更常用，而且时间很有限不足以完成响应式布局，我决定开发手机页面，这样可供参考的软件也会很多。</li><li>网络请求: 决定使用axios，因我没用过，想试试。</li><li>天气图标: 和风天气设计了一套开源的<a href="https://dev.qweather.com/docs/start/icons/">和风天气图标</a>,仓库地址<a href="https://github.com/qwd/Icons">在这</a>。<br><img src="//asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%92%8C%E9%A3%8E%E5%A4%A9%E6%B0%94%E5%9B%BE%E6%A0%87.png" alt="和风天气图标"><br>不过它只设计了天气现象相关图标，缺少诸如大气压、紫外线、日出、能见度等图标，但是先凑活着用吧。</li><li>图标展示: 推荐的<a href="https://www.chartjs.org/">Charts.js</a>文档实在难看懂，网上搜索不到几篇教程。最后选择了Apache基金会的<a href="https://echarts.apache.org/zh/index.html">ECharts.js</a>，不仅有中文文档，网上能搜到的教程也多得多。不过全功能的包体有点大，等以后可以研究一下按需引入。</li><li>页面布局：我结合了手头的华为天气和数据提供商自己的一个<a href="https://www.qweather.com/app/">S和风天气app</a>。</li></ol><h2 id="3-动手"><a href="#3-动手" class="headerlink" title="3.动手"></a>3.动手</h2><h3 id="3-0-IDE选择"><a href="#3-0-IDE选择" class="headerlink" title="3.0 IDE选择"></a>3.0 IDE选择</h3><p>以前开发我基本就用DW或者vsc + 浏览器内建的样式编辑器，这次想尝试一下JetBrians WebStorm。</p><p>一是听说它的代码补全很强，二是杭电学生认证后有正版的全家桶可以白嫖。</p><h3 id="3-1-简易搭建一个本地缓存"><a href="#3-1-简易搭建一个本地缓存" class="headerlink" title="3.1 简易搭建一个本地缓存"></a>3.1 简易搭建一个本地缓存</h3><ol><li>修改CSS的时候如果实时预览，每次修改保存都要重载页面，向api获取数据，不仅耗时而且浪费很多的使用次数，于是用Python在本地创建了一个服务器，作用就是读取预先保存的json再返回。测试的时候只要用本地的api就好了，反正不需要最新数据。</li></ol><ul><li><p>需要注意的是，即使json和py文件都是utf8编码，也应该指定一下open函数的打开编码，比如在我这就默认用gbk打开了，显示“’gbk’ codec can’t decode byte 0xb4 in position 179: illegal multibyte sequence”。</p></li><li><p><strong>解决方案：在open()函数里传递encoding=’utf-8’的参数，例如：</strong></p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">with open(&#x27;now.json&#x27;,encoding=&#x27;utf-8&#x27;) as f:</span><br></pre></td></tr></table></figure></li></ul><ol start="2"><li>由于WebStorm的本地调试服务器和Python的临时数据服务器不在一个端口上，请求会因为<a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Access-Control-Allow-Origin">跨域</a>被阻止。为了测试需要，就要设置响应头。</li></ol><p><img src="//asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/CORS.png" alt="跨域请求被阻止"></p><p>在Sanic中，<a href="https://sanicframework.org/zh/guide/basics/middleware.html#%E5%90%AF%E7%94%A8-attaching-middleware">中间件(Middleware)</a>功能可以在请求到达路由的前后处理数据,以此来实现用户自定义的全局功能。在这里，因为需要进一步处理相应，所以我们将中间件绑定到“response”上。这里使用装饰器的形式实现。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@app.middleware(&#x27;response&#x27;)</span><br></pre></td></tr></table></figure><p>然后，我们自定义一个函数设置服务器允许任何域访问资源（<strong>临时调试用，在生产环境请严格指定域来避免安全风险</strong>）。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">async def fkCORS(request, response):</span><br><span class="line">    response.headers[&quot;Access-Control-Allow-Origin&quot;] = &quot;*&quot;</span><br></pre></td></tr></table></figure><p>现在整个中间件看起来是这样的</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@app.middleware(&#x27;response&#x27;)</span><br><span class="line">async def fkCORS(request, response):</span><br><span class="line">    response.headers[&quot;Access-Control-Allow-Origin&quot;] = &quot;*&quot;</span><br></pre></td></tr></table></figure><blockquote><p>MDN上的<a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Access-Control-Allow-Origin">“Access-Control-Allow-Origin”</a><br>Sanic 入门：<a href="https://sanicframework.org/zh/guide/basics/middleware.html">中间件(Middleware)</a></p></blockquote><ol start="3"><li>Sanic的服务器会绑定主机名称，如果我们的局域网ip为10.66.233.77，但设置服务器host为localhost,port为8090，则不能通过10.66.233.77:8090访问到网站，只会显示拒绝连接。<br><img src="//asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E6%8B%92%E7%BB%9D%E8%BF%9E%E6%8E%A5.png" alt="host不对应导致拒绝连接"><br>如果想要用局域网设备访问，比如使用手机真机调试，<strong>我们应将host设置为局域网ip地址来规避这个问题</strong>。<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">    app.run(host=&#x27;10.66.233.77&#x27;,port=8090,debug=True)</span><br></pre></td></tr></table></figure></li></ol><p><strong>注意，如果你的局域网ip地址不是固定的，记得手动在变更后修改。</strong></p><h3 id="3-2-使用css计算器生成线性背景渐变图"><a href="#3-2-使用css计算器生成线性背景渐变图" class="headerlink" title="3.2 使用css计算器生成线性背景渐变图"></a>3.2 使用css计算器生成线性背景渐变图</h3><p>制作过程中为了顺畅衔接地图和天气卡片，需要给卡片所在容器设置一个由透明到渐变再到完全纯色的背景。同时卡片本身就需要一个渐变色。</p><p>这里就用到了<a href="https://developer.mozilla.org/zh-CN/docs/Web/CSS/gradient/linear-gradient()">“linear-gradient()”</a> 这个函数。</p><p>linear-gradient() 函数用于创建一个表示两种或多种颜色线性渐变的图片。<br><strong>注意，因为是图片，所以只能被用于图片可以被使用的地方，而并不适用于background-color等属性</strong></p><p>卡片的渐变比较简单，从只需要从左下角颜色渐变到右上的颜色即可：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#overviewCard&#123;</span><br><span class="line">    background-image: linear-gradient(to top right, #1C1D1F 0%, #353E4D 100%);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>在背景用例中，我需要一部分纯透明区域，一部分渐变区域，一部分纯色区域。这些区域的范围是可以手动指定的，像这样：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#overviewContainer&#123;</span><br><span class="line">    background-image: linear-gradient(to bottom, transparent 0%, transparent 30%, #FFFFFF 50%, #FFFFFF 100%);</span><br><span class="line">&#125;   </span><br></pre></td></tr></table></figure><p>实际效果如下：<br><img src="//asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/css%E8%AE%A1%E7%AE%97%E8%83%8C%E6%99%AF%E6%B8%90%E5%8F%98.png" alt="css计算背景渐变.png"></p><h3 id="3-3-使用三目运算符动态分配类名"><a href="#3-3-使用三目运算符动态分配类名" class="headerlink" title="3.3 使用三目运算符动态分配类名"></a>3.3 使用三目运算符动态分配类名</h3><p>在24小时预报和7天预报中，为了将相邻两个容器区分开来增加可读性，需要在生成html的时候动态指配两种class<br>刚好上周的C语言课程学到了三目运算符，可以迁移到js上来（在js里似乎叫<a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Conditional_Operator"><em>三元运算符</em>或者<em>条件运算符</em></a>）。</p><p>因为具体用法相同，在C语言的课程上讲过，就不再做解释了，相关代码如下</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">let html = &quot;&quot;;</span><br><span class="line">for (let i = 0;i &lt; Object.keys(foo).length;i++)&#123; //Object.keys().length用来获取json中的项数</span><br><span class="line">        html += `&lt;div class=&quot;$&#123;(i % 2 == 0)?&quot;dark&quot;:&quot;light&quot;&#125;&quot;&gt; //区分两种容器的颜色</span><br><span class="line">                                &lt;div&gt;...&lt;/div&gt;</span><br><span class="line">                                ...</span><br><span class="line">                &lt;/div&gt;`;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure><p>实际效果如下：<br><img src="//asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E4%B8%89%E5%85%83%E8%BF%90%E7%AE%97%E7%AC%A6%E5%8C%BA%E5%88%86%E5%AE%B9%E5%99%A8.png" alt="三元运算符区分容器"></p><h3 id="3-4-使用css-var-函数实现暗黑主题"><a href="#3-4-使用css-var-函数实现暗黑主题" class="headerlink" title="3.4 使用css var()函数实现暗黑主题"></a>3.4 使用css var()函数实现暗黑主题</h3><p>不管是什么主题，整个网站都会遵循一定的配色标准，简单来说就是分门别类，不同作用的元素对应了不同的颜色。<br>当我们启用暗黑模式的时候，同一作用的元素需要切换颜色。</p><p>如何不用写两套css就能实现这种效果呢？我们可以用<a href="https://developer.mozilla.org/zh-CN/docs/Web/CSS/var()">var()函数</a>配合相应变量替代掉所有颜色区域。<br>相应的颜色可以定义在根元素节点上，比如&lt;html&gt;标签中，比如</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">:root&#123;</span><br><span class="line">    --tb: #000000; /*正常为黑*/</span><br><span class="line">    --tw: #FFFFFF; /*正常为白*/</span><br><span class="line">    --tt: #CCCCCC; /*tip提示语*/</span><br><span class="line">    --qicon: #000000; /*天气图标*/</span><br><span class="line">    --bgc: #FFFFFF; /*背景色*/</span><br><span class="line">    --bgg: #CCCCCC; /*背景分割色*/</span><br><span class="line">    --bgd: #f0f0f0; /*背景区分色*/</span><br><span class="line">    --bge1: #1C1D1F; /*背景强调色*/</span><br><span class="line">    --bge2: #353E4D;</span><br><span class="line">&#125;</span><br><span class="line">.dark&#123;</span><br><span class="line">    --tb: #E0E0E0;</span><br><span class="line">    --tw: #FFFFFF;</span><br><span class="line">    --tt: #777A81;</span><br><span class="line">    --qicon: #E0E0E0;</span><br><span class="line">    --bgc: #1C1D1F;</span><br><span class="line">    --bgg: #2A2F35;</span><br><span class="line">    --bgd: #2C2D31;</span><br><span class="line">    --bge1: #1C1D1F;</span><br><span class="line">    --bge2: #353E4D;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>其中:root 选择器匹配文档根元素。在网页中，根元素始终是&lt;html&gt;元素。<br>然后在需要切换颜色的地方，都应该显式指定相应的颜色变量：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">#overviewCard&#123;</span><br><span class="line">    background-image: linear-gradient(to top right, var(--bge1) 0%, var(--bge2) 100%);</span><br><span class="line">&#125;</span><br><span class="line">#overviewSummary&#123;</span><br><span class="line">    color: var(--tb);</span><br><span class="line">&#125;</span><br><span class="line">#detailContainer&#123;</span><br><span class="line">    background-color: var(--bgg);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>现在我们看到，默认情况下浏览器使用:root定义的颜色组：<br><img src="//asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/root%E9%A2%9C%E8%89%B2%E7%BB%84%E8%A2%AB%E5%90%AF%E7%94%A8.png" alt=":root颜色组被启用"><br>当我们给&lt;html&gt;添加类”dark”的时候，dark颜色组覆写了root颜色组的设置，&lt;html&gt;里的元素都会继承dark的变量设定：<br><img src="//asakirain.gitee.io/assets/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/dark%E9%A2%9C%E8%89%B2%E7%BB%84%E8%A6%86%E7%9B%96%E4%BA%86root.png" alt=":root颜色组被启用"><br>这样就能实现颜色切换了。</p><h3 id="3-5-动态切换图表的配色"><a href="#3-5-动态切换图表的配色" class="headerlink" title="3.5 动态切换图表的配色"></a>3.5 动态切换图表的配色</h3><p>很遗憾，解决了基本元素的配色问题，我们还需要单独解决图表配色。因为图表的颜色设定实际上是写在js的json中传递给函数的。<br>相关设置可以在ECharts的<a href="https://echarts.apache.org/zh/option.html">配置项手册</a>中很详尽地看到，这里不再赘述<br>因为图标在创建后支持动态更改设定，所以我们使用darkCharts()和lightCharts()两个函数交替切换图表样式，<strong>缺省设置会保留之前的，但是要求格式完全一致</strong><br>下面是部分实现代码，可以看到非常难以阅读(这里我使用变量来代替所有相同部分以便后期快速更改)：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">function darkCharts()&#123;</span><br><span class="line">    let textColor = &quot;#E0E0E0&quot;;</span><br><span class="line">    let lineColor = &quot;#454545&quot;;</span><br><span class="line">    let borderColor = &quot;#000000&quot;;</span><br><span class="line">    let borderWidth = 1;</span><br><span class="line">    foreDaysChart.setOption(&#123;</span><br><span class="line">        yAxis: [</span><br><span class="line">            &#123;</span><br><span class="line">                splitLine:&#123;</span><br><span class="line">                    lineStyle: &#123;</span><br><span class="line">                        color: [lineColor],</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;,</span><br><span class="line">                axisLabel:&#123;</span><br><span class="line">                    textStyle: &#123;</span><br><span class="line">                        color: textColor,</span><br><span class="line">                        textBorderColor: borderColor,</span><br><span class="line">                        textBorderWidth: borderWidth,</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        ],</span><br><span class="line">        xAxis: [</span><br><span class="line">            &#123;</span><br><span class="line">                axisLabel:&#123;</span><br><span class="line">                    textStyle: &#123;</span><br><span class="line">                        color: textColor,</span><br><span class="line">                        textBorderColor: borderColor,</span><br><span class="line">                        textBorderWidth: borderWidth,</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        ],</span><br><span class="line">        series: [</span><br><span class="line">            &#123;</span><br><span class="line">                label: &#123;</span><br><span class="line">                    color: textColor,</span><br><span class="line">                    textBorderColor: borderColor,</span><br><span class="line">                    textBorderWidth: borderWidth,</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            &#123;</span><br><span class="line">                label: &#123;</span><br><span class="line">                    color: textColor,</span><br><span class="line">                    textBorderColor: borderColor,</span><br><span class="line">                    textBorderWidth: borderWidth,</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">        ]</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><strong>吐槽：在新版的更新日志里已经不建议我使用textBorderColor和textBorderWidth两个属性，然而它并没有提供合适的替代属性，所以还是只能用着。害得我找了好久更优解。</strong></p><h3 id="3-6-模拟-document-ready-与初始填充内容"><a href="#3-6-模拟-document-ready-与初始填充内容" class="headerlink" title="3.6 模拟$(document).ready()与初始填充内容"></a>3.6 模拟$(document).ready()与初始填充内容</h3><p>没时间做鱼骨屏了，而且提到的方便工具都在vue或者react体系下，我也用不了。</p><p>于是我准备直接在页面加载时初始化一系列空数据，有总比没有强。然后在获取到具体数据以后或替换或更新。</p><p>这里我发现，原生的js并没有提供像jQuery库一样方便的现成函数$(document).ready()。<br>但是我们可以通过判断<a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Document/readyState">document.readyState</a>来自己造一个轮子</p><p>当document.readyState变为interactive（可交互）时，就代表html文档已经解析完成，但是诸如图像，样式表和框架之类的子资源仍在加载。实际上这相当于$(document).ready()的状态。</p><p>当该属性值发生变化时，会在 document 对象上触发 readystatechange 事件，通过监听这个事件来运行回调函数，我们就可以模拟出一样的效果</p><p>代码如下：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">document.onreadystatechange = function () &#123;</span><br><span class="line">    if (document.readyState === &quot;interactive&quot;) &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h3 id="3-7-localStorage储存偏好和原生实现类的增删改"><a href="#3-7-localStorage储存偏好和原生实现类的增删改" class="headerlink" title="3.7 localStorage储存偏好和原生实现类的增删改"></a>3.7 localStorage储存偏好和原生实现类的增删改</h3><p>这对我而言完全是完全是新东西了，以前只接触cookie。</p><p>localStorage是持久化的本地存储，除非是通过js删除，或者清除浏览器缓存，否则数据是永远不会过期的。</p><p>而cookie是用于客户端和服务端间的信息传递，每次请求都会被附带在请求头中，因此不适宜储存大量数据或者用户个人偏好。</p><p>在这里我用localStorage储存了用户上次使用的主题偏好，可以在每次刷新时自动应用，防止闪瞎。<br>localStorage的增删改函数是原样从Sukka的博文<a href="https://blog.skk.moe/post/hello-darkmode-my-old-friend/#">你好黑暗，我的老朋友 —— 为网站添加用户友好的深色模式支持</a>中抄来和简化的，我就不放代码了。</p><p>在简化过程中准备直接给&lt;html&gt;标签设置颜色组属性，结果，很遗憾发现原生js没有现成的封装，于是<a href="https://www.cnblogs.com/mbyund/p/6908959.html">从网上</a>又抄了一个。<br>稍微改了下，因为WebStorm疯狂说我代码不规范，变量乱声明。</p><p><strong>技术细节到这里就结束了</strong></p><h2 id="4-后记"><a href="#4-后记" class="headerlink" title="4.后记"></a>4.后记</h2><p>终于写到后记了，写个博文用了我4个小时，累死了（所以博客才万年不更新的）。</p><ul><li>这次因为时间仓促，额外发挥的部分要求，比如响应式页面、骨架屏、toast用户提示、webpack打包等没有实现。</li><li>整个网页是国庆花了整两天搓出来的，期间学习了ECharts、axios、localStorage、css函数等各种新知识。</li><li>我没有预料到新知识的学习成本还是很高的，耗时非常严重。然后在一开始寻找合适api，选择合适图表库的时候走了很长的弯路。</li><li>这次是我第一次写出一整个兼具美观和功能的网页，还是很有成就感的（但是真的累，两天速成不可取）</li><li><strong>美中不足的是高德地图的JS API竟然没有提供夜间模式的地图，结果开了夜间模式首屏还是瞎眼了，唉</strong></li><li>这次是我第一次用原生js来实现一系列功能，感谢<a href="https://github.com/nefe/You-Dont-Need-jQuery/blob/master/README.zh-CN.md">You-Dont-Need-jQuery</a>的指导，让我看到了一系列jQuery封装后各种功能本来的样子。有些地方，原生js也能一样简洁！</li></ul><p>最后，如果博文有错误或者错字的地方，欢迎指出（其实大概仅限于我认识的人，因为博客没有评论系统）<br>你可以发送邮件到asak&amp;irain.cc（请把&amp;换成@）<br>很荣幸能得到你的耐心阅读！</p>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E6%8A%80%E6%9C%AF/">技术</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/web%E5%A4%A9%E6%B0%94%E5%8D%A1%E7%89%87%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>购买了Dolby Atoms for Headphones，爽到了</title>
+      <link>https://asakirain.github.io/post/%E8%B4%AD%E4%B9%B0%E4%BA%86dolby-atoms-for-headphones%EF%BC%8C%E7%88%BD%E5%88%B0%E4%BA%86/</link>
+      <guid>https://asakirain.github.io/post/%E8%B4%AD%E4%B9%B0%E4%BA%86dolby-atoms-for-headphones%EF%BC%8C%E7%88%BD%E5%88%B0%E4%BA%86/</guid>
+      <pubDate>Mon, 15 Jun 2020 16:46:29 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;这周五拿手机原装耳机听歌(华为P30的3.5mm插口耳机)，歌曲是用nplayer访问电脑ftp播放的。&lt;/p&gt;
+&lt;p&gt;虽然都是些128kbps~192kbps的mp3，但是因为nplayer内置DTS音效，立体声一开听感就好很多。于是突发奇想，为什么不能给电脑加一个这样的</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p>这周五拿手机原装耳机听歌(华为P30的3.5mm插口耳机)，歌曲是用nplayer访问电脑ftp播放的。</p><p>虽然都是些128kbps~192kbps的mp3，但是因为nplayer内置DTS音效，立体声一开听感就好很多。于是突发奇想，为什么不能给电脑加一个这样的音效驱动呢？</p><p>答案3是肯定的。在网上可以找到Dolby Home Theater4或者Dolby Audio Premium，或者是DTS Audio的控制面板和驱动的安装包，于是尝试之。</p><p>先一波折腾试了Dolby Home Theater4。操作比较麻烦，得反复重启电脑，费了点力气装上以后，很失望发现这样粗暴的方法不尽如人意。播放音乐时低音稀烂听起来像爆炸了一样(笑)，而且安装程序顺手把英伟达的音频驱动替换了，我的HDMI口音频输出阵亡，电流爆音中依稀挤出节奏。这显然是没救了。</p><p>又换成Dolby Audio Premium了。装完以后，发现这个软件提供的游戏、音乐、电影模式预设不能进一步调节，我又驾驭不住自定义均衡器。完事以后更发现检测不到麦克风了。就你?离谱，我又卸载了。</p><p>最后试了试DTS Audio。效果依然差的一批，低音还是像轰炸一样，开了一些声音效果，声音反而还变浑浊了。结果三个驱动都不适配电脑，得到的音效都不堪入耳……</p><p>这下就安装了Win10商店里的Dolby Access。7天试用一开，发现效果真的立马不同，比强装驱动的手推车好多了。对比了同是商店里的DTS Unbound，发现对于我的廉价耳麦来说，杜比的效果更加好一些。我于是从淘宝网薅到了便宜的兑换码(原价144￥)用上了。</p><p>真的是很不错的体验，XD。</p>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E6%97%A5%E5%B8%B8/">日常</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E8%B4%AD%E4%B9%B0%E4%BA%86dolby-atoms-for-headphones%EF%BC%8C%E7%88%BD%E5%88%B0%E4%BA%86/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>「灵异阴阳录」图片资源提取</title>
+      <link>https://asakirain.github.io/post/%E3%80%8C%E7%81%B5%E5%BC%82%E9%98%B4%E9%98%B3%E5%BD%95%E3%80%8D%E5%9B%BE%E7%89%87%E8%B5%84%E6%BA%90%E6%8F%90%E5%8F%96/</link>
+      <guid>https://asakirain.github.io/post/%E3%80%8C%E7%81%B5%E5%BC%82%E9%98%B4%E9%98%B3%E5%BD%95%E3%80%8D%E5%9B%BE%E7%89%87%E8%B5%84%E6%BA%90%E6%8F%90%E5%8F%96/</guid>
+      <pubDate>Sat, 15 Jun 2019 00:01:38 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;&lt;img src=&quot;https://asakirain.gitee.io/assets/%E3%80%8C%E7%81%B5%E5%BC%82%E9%98%B4%E9%98%B3%E5%BD%95%E3%80%8D%E5%9B%BE%E7%89%87%E8%B5%84%E6</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p><img src="https://asakirain.gitee.io/assets/%E3%80%8C%E7%81%B5%E5%BC%82%E9%98%B4%E9%98%B3%E5%BD%95%E3%80%8D%E5%9B%BE%E7%89%87%E8%B5%84%E6%BA%90%E6%8F%90%E5%8F%96/wallpaper.png"></p><p>先丢个<a href="https://baike.baidu.com/item/%E7%81%B5%E5%BC%82%E9%98%B4%E9%98%B3%E5%BD%95/536076"><strong>百度百科</strong></a>链接吧……本来想用萌娘百科发现竟然没有这条词条？？？</p><p>这个游戏在我玩之前就已经停服了，好像有邀请P站上的画师画人设图，所以有时候逛P站会看到这些图片，于是我就很感兴趣了。虽然游戏关服，我我想我大概还能提取出资源文件。于是就上网搜了一下安装包，发现这个游戏的资源完全是在第一次启动游戏的时候在线下载的，而且客户端似乎在设计的时候并没考虑网络因素，我就看着这个游戏在那里加载了半小时，连不上已关闭的服务器，一个错误都没提示。——好可怜啊。</p><p><img src="https://asakirain.gitee.io/assets/%E3%80%8C%E7%81%B5%E5%BC%82%E9%98%B4%E9%98%B3%E5%BD%95%E3%80%8D%E5%9B%BE%E7%89%87%E8%B5%84%E6%BA%90%E6%8F%90%E5%8F%96/wallpaper1.png"></p><p>于是就只好在网上寻找资源了。正巧前段时间百度刚把15年以前的帖子全删掉，所以百度搜索一个帖子都搜不到，是没花头了，就开始用必应搜索。最终找到了一个资源帖，查看了2019/06/01的缓存，发现里面的百度网盘还能打开——也算是拯救了一个老资源。</p><p>&gt;&gt;这个帖子在2019/06/13已经不能在必应里被搜到，为了尽量留下帖子贡献者的痕迹，我贴出百度网盘链接</p><blockquote><p><a href="https://pan.baidu.com/s/1pJp3Koj#list/path=%2F"><strong>https://pan.baidu.com/s/1pJp3Koj#list/path=%2F</strong></a></p></blockquote><p><img src="https://asakirain.gitee.io/assets/%E3%80%8C%E7%81%B5%E5%BC%82%E9%98%B4%E9%98%B3%E5%BD%95%E3%80%8D%E5%9B%BE%E7%89%87%E8%B5%84%E6%BA%90%E6%8F%90%E5%8F%96/wallpaper2.png"></p>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E5%AA%92%E4%BD%93/">媒体</category>
+      
+      <category domain="https://asakirain.github.io/categories/ACG/">ACG</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E3%80%8C%E7%81%B5%E5%BC%82%E9%98%B4%E9%98%B3%E5%BD%95%E3%80%8D%E5%9B%BE%E7%89%87%E8%B5%84%E6%BA%90%E6%8F%90%E5%8F%96/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>百度贴吧把几年前的帖子全给删了</title>
+      <link>https://asakirain.github.io/post/%E7%99%BE%E5%BA%A6%E8%B4%B4%E5%90%A7%E6%8A%8A%E5%87%A0%E5%B9%B4%E5%89%8D%E7%9A%84%E5%B8%96%E5%AD%90%E5%85%A8%E7%BB%99%E5%88%A0%E4%BA%86/</link>
+      <guid>https://asakirain.github.io/post/%E7%99%BE%E5%BA%A6%E8%B4%B4%E5%90%A7%E6%8A%8A%E5%87%A0%E5%B9%B4%E5%89%8D%E7%9A%84%E5%B8%96%E5%AD%90%E5%85%A8%E7%BB%99%E5%88%A0%E4%BA%86/</guid>
+      <pubDate>Fri, 07 Jun 2019 00:52:38 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;RT，发现这是是因为B站关注的一个红石大佬说他在贴吧发的远古红石作品全都被贴吧恶意删除而且申诉无果。&lt;/p&gt;
+&lt;p&gt;看了一下，其他贴吧也遭遇到了比较大的损伤，有些贴吧吧规都被吞了只好写了个临时的。有些贴吧的资源楼好像没了，更多我关注的贴吧好像没啥活跃度，就没有反映。&lt;/p&gt;</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p>RT，发现这是是因为B站关注的一个红石大佬说他在贴吧发的远古红石作品全都被贴吧恶意删除而且申诉无果。</p><p>看了一下，其他贴吧也遭遇到了比较大的损伤，有些贴吧吧规都被吞了只好写了个临时的。有些贴吧的资源楼好像没了，更多我关注的贴吧好像没啥活跃度，就没有反映。</p><p>百度贴吧这次的行为非常的恶心，完全没有事先通知用户，而且似乎也不提供暂时的回复或者数据备份服务。百度搜索里有关旧帖的搜索结果也被清楚了一部分。</p><p>不过好在别的搜索引擎好像还没有迅速作词反应。这周我在必应上搜索旧帖，看到了一个2015年的资源帖，直接点击进入就只会跳转到这个吧的首页，是不可能进去了。但是必应快照可以用！最近一次必应缓存页面是在2019/06/01，那个时候这个帖子还没被删除。如果仅仅只是想获得百度网盘链接的话而不看图片的话，还是能拿到想要的东西的。</p><p>不过必应快照的不能获取百度贴吧里的图片，显示“该图片仅限百度用户内部交流”，然后百度相册这也也猝死了。不过毕竟百度已经做得这么绝了，能抢就回一点数据也算很不错了，只是必应搜索引擎下一次的缓存可能就会把这个页面覆盖掉了，这样基本就是永久性的数据丢失了。</p><p>而我的话，百度贴吧里似乎只有回复过几个帖子。现在几年前帖子全删，我基本算是被销号了?。仙子我周围的人一直都在说“贴吧已经凉了”，不知道贴吧现在是不是真的没落了，还有这次百度删帖是否也是出于这样的考虑。</p><p>因为我不是一个贴吧活跃用户，贴吧具体的现状我也难以掌握，所以最后我还是心疼那些曾经的人在贴吧写下发出的一切被销毁，曾经的各种资源和分享可能就此躺在一个人的硬盘里、一个网盘的小角落里，不会再有人补发了。</p>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E6%97%A5%E5%B8%B8/">日常</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E7%99%BE%E5%BA%A6%E8%B4%B4%E5%90%A7%E6%8A%8A%E5%87%A0%E5%B9%B4%E5%89%8D%E7%9A%84%E5%B8%96%E5%AD%90%E5%85%A8%E7%BB%99%E5%88%A0%E4%BA%86/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>重新拥抱Apache——记一次网页环境重建</title>
+      <link>https://asakirain.github.io/post/%E9%87%8D%E6%96%B0%E6%8B%A5%E6%8A%B1apache-%E8%AE%B0%E4%B8%80%E6%AC%A1%E7%BD%91%E9%A1%B5%E7%8E%AF%E5%A2%83%E9%87%8D%E5%BB%BA/</link>
+      <guid>https://asakirain.github.io/post/%E9%87%8D%E6%96%B0%E6%8B%A5%E6%8A%B1apache-%E8%AE%B0%E4%B8%80%E6%AC%A1%E7%BD%91%E9%A1%B5%E7%8E%AF%E5%A2%83%E9%87%8D%E5%BB%BA/</guid>
+      <pubDate>Sat, 01 Jun 2019 17:39:35 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;高一下这学期刚开始，好好工作了将近1年半的apache2.4坏了。由于我事先没有特意去修改配置文件，我就不知道问题出在哪里。不管是在命令行里运行还是去查errors.log，我都排查不出问题。&lt;/p&gt;
+&lt;p&gt;正好那段时间网站所在硬盘分区空间吃紧，而此时的整个站点占了40G大</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p>高一下这学期刚开始，好好工作了将近1年半的apache2.4坏了。由于我事先没有特意去修改配置文件，我就不知道问题出在哪里。不管是在命令行里运行还是去查errors.log，我都排查不出问题。</p><p>正好那段时间网站所在硬盘分区空间吃紧，而此时的整个站点占了40G大小，我就想着要重新部署一个网页环境，同时移动站点文件夹到另一块专存数据的硬盘里去。于是乎先删掉了php文件夹，结果发现apache又能打开了……算了这样修服务器环境不地道，我还是整个新的吧。</p><p>——正好那时候懒癌发作，考虑到上高中周末没有充足的时间来研究apache配置，我就选择了Internet Information Servic（IIS）来帮助我快速恢复网站运行。由于之前使用过一小会的IIS，我知道它的虚拟主机很方便，心里想着要把博客，网盘，后台这三个网站分开来建，就先把整个htdocs打了个压缩包扔到了新的盘里，</p><p>IIS的大部分功能都是用的图形化配置，这很方便，我再也不用啃配置文件了。用Win-acme签发好的Let’s Encrypt X3 证书可以直接在SSL证书下拉框里选到，我也成功的设置完了三个虚拟主机，归位了主要文件。</p><p>由于在重建网页环境的时候换回了i4u.moe的主域名，https的端口号也改了，导致我原来wordpress的数据库匹配不上，访问不了。我尝试过批量搜索旧域名改成新域名，还是没有用。后来发现数据库里还有一堆文章固定链接是服务器没启用https的时候的死链，心想：“这也不地道”，然后我又新建了一个wordpress。</p><p>因为之前服务器坏的事出突然，然后我的备份插件说恢复备份居然要花15＄买高级版，于是只好自己从旧数据库里一点点把文章捞出来，再从就资源文件夹里把资源归位。因为我懒……五月初我才开始陆续恢复文章。结果我发现，以前在文章里分享图片的h5ai文件浏览器好像不支持IIS……</p><p>这……求（语气助词）！</p><p>因为一波百度和操作后没办法解决问题，网上也难找到简介好看的有在线浏览文件功能的目录浏览器，我只好考虑换回apache（不用nginx是因为它在windows上是用cygwin编译的，性能十足是一个残废）</p><p>本来又准备直接下载现成的网页环境安装包来方便地部署。我尝试了xampp，结果发现这个软件在部署环境时已经对httpd.conf做了很大的修改，导致我直接从百度查来的一些设置可能会给网页留一个大后门之类的东西——它自带的phpMyAdmin直接在配置文件里写入了登陆数据库的账号和密码，然后我设置的虚拟主机让这个设置页面可以直接被外网访问——这也太刺激了。由于害怕还有这样的问题，我只好决定自己重走最初的路，来配置一遍apache2.4.39+php7.3.6生产环境</p><p>我于是重新把全部要用的软件包下载了一遍，计划安装在同一个目录里。各种配置还是一样的疯狂百度，然后用windows分屏一半看教程，另一半在notepad++里改配置。因为百度那堆东西的时效性和可靠性难辨真假，我又走了那么一些弯路。简单的环境成了以后，就要开始配置SSL证书和虚拟主机。</p><p>SSL证书的配置早在第一次用apache时就已经花了将近一天来反复重试。由于印象过于深刻，我直接一遍过完事了。然后虚拟站点使我秃头……我花了整一个上午来尝试攻克这个技术性难题。网上教程多数就配置完http虚拟主机，没有介绍https的虚拟主机怎么配置，导致我反复失败了好多次。最后是参考了yudouyudou的<a href="https://www.yudouyudou.com/jiaochengheji/wangzhanjianshe/1451.html">一篇教程</a>成功配置完毕了——不得不说，图形界面有时候是真的好，IIS处理这个主要几分钟……</p><p>所以最终我还是把网站环境迁移到了apache上。这次迁移域名端口这些设置都没变，所以wordpress很慈善地不用我重装了（欢呼?）之后稍微改了一下上传文件和连接时长限制，我又重新把所有的视频放了回来。接下来就只有小小的修缮工作了。</p><p>衷心地希望这次服务器环境能用得就一点，不然又要秃头了……</p>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E6%97%A5%E5%B8%B8/">日常</category>
+      
+      <category domain="https://asakirain.github.io/categories/%E6%8A%80%E6%9C%AF/">技术</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E9%87%8D%E6%96%B0%E6%8B%A5%E6%8A%B1apache-%E8%AE%B0%E4%B8%80%E6%AC%A1%E7%BD%91%E9%A1%B5%E7%8E%AF%E5%A2%83%E9%87%8D%E5%BB%BA/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>「忧郁的怪物庵 续」摘句#1</title>
+      <link>https://asakirain.github.io/post/%E3%80%8C%E5%BF%A7%E9%83%81%E7%9A%84%E6%80%AA%E7%89%A9%E5%BA%B5-%E7%BB%AD%E3%80%8D%E6%91%98%E5%8F%A51/</link>
+      <guid>https://asakirain.github.io/post/%E3%80%8C%E5%BF%A7%E9%83%81%E7%9A%84%E6%80%AA%E7%89%A9%E5%BA%B5-%E7%BB%AD%E3%80%8D%E6%91%98%E5%8F%A51/</guid>
+      <pubDate>Sat, 01 Jun 2019 15:54:31 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;&lt;img src=&quot;https://asakirain.gitee.io/assets/%E3%80%8C%E5%BF%A7%E9%83%81%E7%9A%84%E6%80%AA%E7%89%A9%E5%BA%B5-%E7%BB%AD%E3%80%8D%E6%91%98%E</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p><img src="https://asakirain.gitee.io/assets/%E3%80%8C%E5%BF%A7%E9%83%81%E7%9A%84%E6%80%AA%E7%89%A9%E5%BA%B5-%E7%BB%AD%E3%80%8D%E6%91%98%E5%8F%A51/53F202F7-C9C5-4DA9-96BD-9740B81BBD55.jpeg"></p><p><img src="https://asakirain.gitee.io/assets/%E3%80%8C%E5%BF%A7%E9%83%81%E7%9A%84%E6%80%AA%E7%89%A9%E5%BA%B5-%E7%BB%AD%E3%80%8D%E6%91%98%E5%8F%A51/7A390ADF-0AAE-4907-8BED-B85F0EB6F6CD.png"></p><p><img src="https://asakirain.gitee.io/assets/%E3%80%8C%E5%BF%A7%E9%83%81%E7%9A%84%E6%80%AA%E7%89%A9%E5%BA%B5-%E7%BB%AD%E3%80%8D%E6%91%98%E5%8F%A51/876E49E2-DC76-4843-8214-C4529F3B2650.png"></p><p><img src="https://asakirain.gitee.io/assets/%E3%80%8C%E5%BF%A7%E9%83%81%E7%9A%84%E6%80%AA%E7%89%A9%E5%BA%B5-%E7%BB%AD%E3%80%8D%E6%91%98%E5%8F%A51/92BA3F65-02A0-46C5-A201-4D7F480DDAA9.png"></p><p><img src="https://asakirain.gitee.io/assets/%E3%80%8C%E5%BF%A7%E9%83%81%E7%9A%84%E6%80%AA%E7%89%A9%E5%BA%B5-%E7%BB%AD%E3%80%8D%E6%91%98%E5%8F%A51/64DE7A09-F7DA-42C1-AD2D-6B8769CDD79F.png"></p><p><img src="https://asakirain.gitee.io/assets/%E3%80%8C%E5%BF%A7%E9%83%81%E7%9A%84%E6%80%AA%E7%89%A9%E5%BA%B5-%E7%BB%AD%E3%80%8D%E6%91%98%E5%8F%A51/F423D937-CCCB-48DF-9819-885B39F062F6.png"></p><p><img src="https://asakirain.gitee.io/assets/%E3%80%8C%E5%BF%A7%E9%83%81%E7%9A%84%E6%80%AA%E7%89%A9%E5%BA%B5-%E7%BB%AD%E3%80%8D%E6%91%98%E5%8F%A51/AF868FA9-6686-4A5F-B7BF-EC8FE19A7DD4.png"></p><p><img src="https://asakirain.gitee.io/assets/%E3%80%8C%E5%BF%A7%E9%83%81%E7%9A%84%E6%80%AA%E7%89%A9%E5%BA%B5-%E7%BB%AD%E3%80%8D%E6%91%98%E5%8F%A51/6411BD68-8D9E-42AD-8F26-3E425AE3F7D6.png"></p><p><img src="https://asakirain.gitee.io/assets/%E3%80%8C%E5%BF%A7%E9%83%81%E7%9A%84%E6%80%AA%E7%89%A9%E5%BA%B5-%E7%BB%AD%E3%80%8D%E6%91%98%E5%8F%A51/6E20C9A1-071D-4F94-A1FB-A26916055FDC.png"></p><p><img src="https://asakirain.gitee.io/assets/%E3%80%8C%E5%BF%A7%E9%83%81%E7%9A%84%E6%80%AA%E7%89%A9%E5%BA%B5-%E7%BB%AD%E3%80%8D%E6%91%98%E5%8F%A51/81810709-CDD3-4A81-84F8-ED520A64B4AB.jpeg"></p>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E5%AA%92%E4%BD%93/">媒体</category>
+      
+      <category domain="https://asakirain.github.io/categories/ACG/">ACG</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E3%80%8C%E5%BF%A7%E9%83%81%E7%9A%84%E6%80%AA%E7%89%A9%E5%BA%B5-%E7%BB%AD%E3%80%8D%E6%91%98%E5%8F%A51/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>「不愉快的怪物庵 续」感想</title>
+      <link>https://asakirain.github.io/post/%E3%80%8C%E4%B8%8D%E6%84%89%E5%BF%AB%E7%9A%84%E6%80%AA%E7%89%A9%E5%BA%B5-%E7%BB%AD%E3%80%8D%E6%84%9F%E6%83%B3/</link>
+      <guid>https://asakirain.github.io/post/%E3%80%8C%E4%B8%8D%E6%84%89%E5%BF%AB%E7%9A%84%E6%80%AA%E7%89%A9%E5%BA%B5-%E7%BB%AD%E3%80%8D%E6%84%9F%E6%83%B3/</guid>
+      <pubDate>Sat, 01 Jun 2019 15:08:02 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;嘛嘛，毕竟这是喜爱的动漫出续集了，先撒花为敬~~~&lt;/p&gt;
+&lt;p&gt;然后第二季的番，给我的第一印象就是作画的差别和第一部挺大的。后来看评论区知道确实换了个监督。就我而言，稍稍觉得这个画风有点怪，但是不是很介意。不过总感觉花绘的性格变化很大？不知道后面的漫画是怎样的，或者有没有</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p>嘛嘛，毕竟这是喜爱的动漫出续集了，先撒花为敬~~~</p><p>然后第二季的番，给我的第一印象就是作画的差别和第一部挺大的。后来看评论区知道确实换了个监督。就我而言，稍稍觉得这个画风有点怪，但是不是很介意。不过总感觉花绘的性格变化很大？不知道后面的漫画是怎样的，或者有没有改编比较大？我还不清楚。在这一个方面，我还是更喜欢第一部。</p><p>OP和ED方面，我……也喜欢第一部的。文章末尾我会放出来。第一部的OPED我弄到了无字幕的。第二部就用B站片源吧。</p><p>不过经管如此，我还是很喜欢这部番剧的啦，题材以及人物等等。似乎第二部番剧会有挺多新的人物加入，希望后面的更新能让我欣喜XD.放几张图片吧XD.</p><p><img src="https://asakirain.gitee.io/assets/%E3%80%8C%E4%B8%8D%E6%84%89%E5%BF%AB%E7%9A%84%E6%80%AA%E7%89%A9%E5%BA%B5-%E7%BB%AD%E3%80%8D%E6%84%9F%E6%83%B3/IMG_8785.jpg"></p><p><img src="https://asakirain.gitee.io/assets/%E3%80%8C%E4%B8%8D%E6%84%89%E5%BF%AB%E7%9A%84%E6%80%AA%E7%89%A9%E5%BA%B5-%E7%BB%AD%E3%80%8D%E6%84%9F%E6%83%B3/IMG_8788.jpg"></p><p><img src="https://asakirain.gitee.io/assets/%E3%80%8C%E4%B8%8D%E6%84%89%E5%BF%AB%E7%9A%84%E6%80%AA%E7%89%A9%E5%BA%B5-%E7%BB%AD%E3%80%8D%E6%84%9F%E6%83%B3/vlcsnap-2019-01-29-18h16m55s323.png"></p><p>接下来是视频时间——</p><blockquote><p>第一部OP</p></blockquote><div id="op1st"></div><blockquote><p>第一部ED</p></blockquote><div id="ed1st"></div><blockquote><p>第二部OP</p></blockquote><div id="op2nd"></div><blockquote><p>第二部ED</p></blockquote><div id="ed2nd"></div><script src="https://cdn.jsdelivr.net/npm/dplayer@1.26.0/dist/DPlayer.min.js"></script><script>  const op1st = new DPlayer({    container: document.getElementById('op1st'),    autoplay: false,    loop: false,    lang: 'zh-cn',    screenshot: true,    hotkey: true,    preload: 'auto',    volume: 0.4,    video: {        url: '/assets/「不愉快的怪物庵-续」感想/SFEO-Raws-Fukigen-na-Mononokean-NCOP-BD-1080P-x264-ALAC.mp4',        type: 'auto',        },  });  const ed1st = new DPlayer({    container: document.getElementById('ed1st'),    autoplay: false,    loop: false,    lang: 'zh-cn',    screenshot: true,    hotkey: true,    preload: 'auto',    volume: 0.4,    video: {        url: '/assets/「不愉快的怪物庵-续」感想/SFEO-Raws-Fukigen-na-Mononokean-NCED-BD-1080P-x264-ALAC.mp4',        type: 'auto',        },  });  const op2nd = new DPlayer({    container: document.getElementById('op2nd'),    autoplay: false,    loop: false,    lang: 'zh-cn',    screenshot: true,    hotkey: true,    preload: 'auto',    volume: 0.4,    video: {        url: '/assets/「不愉快的怪物庵-续」感想/不愉快的怪物庵-续-OP.mp4',        type: 'auto',        },  });  const ed2nd = new DPlayer({    container: document.getElementById('ed2nd'),    autoplay: false,    loop: false,    lang: 'zh-cn',    screenshot: true,    hotkey: true,    preload: 'auto',    volume: 0.4,    video: {        url: '/assets/「不愉快的怪物庵-续」感想/不愉快的怪物庵-续-ED.mp4',        type: 'auto',        },  });</script>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E5%AA%92%E4%BD%93/">媒体</category>
+      
+      <category domain="https://asakirain.github.io/categories/ACG/">ACG</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E3%80%8C%E4%B8%8D%E6%84%89%E5%BF%AB%E7%9A%84%E6%80%AA%E7%89%A9%E5%BA%B5-%E7%BB%AD%E3%80%8D%E6%84%9F%E6%83%B3/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>首推「晨曦时、梦见兮」得到安纲BAD END</title>
+      <link>https://asakirain.github.io/post/%E9%A6%96%E6%8E%A8%E3%80%8C%E6%99%A8%E6%9B%A6%E6%97%B6%E3%80%81%E6%A2%A6%E8%A7%81%E5%85%AE%E3%80%8D%E5%BE%97%E5%88%B0%E5%AE%89%E7%BA%B2bad-end/</link>
+      <guid>https://asakirain.github.io/post/%E9%A6%96%E6%8E%A8%E3%80%8C%E6%99%A8%E6%9B%A6%E6%97%B6%E3%80%81%E6%A2%A6%E8%A7%81%E5%85%AE%E3%80%8D%E5%BE%97%E5%88%B0%E5%AE%89%E7%BA%B2bad-end/</guid>
+      <pubDate>Sat, 01 Jun 2019 15:03:45 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;&lt;img src=&quot;https://asakirain.gitee.io/assets/%E9%A6%96%E6%8E%A8%E3%80%8C%E6%99%A8%E6%9B%A6%E6%97%B6%E3%80%81%E6%A2%A6%E8%A7%81%E5%85%AE%E3</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p><img src="https://asakirain.gitee.io/assets/%E9%A6%96%E6%8E%A8%E3%80%8C%E6%99%A8%E6%9B%A6%E6%97%B6%E3%80%81%E6%A2%A6%E8%A7%81%E5%85%AE%E3%80%8D%E5%BE%97%E5%88%B0%E5%AE%89%E7%BA%B2bad-end/IMG_9268.jpg"></p><p>我也没想到自己会玩出个这样的结局。感觉很可惜啊，心情也不大好。</p><p>先说起这个结局。是在8月11日（游戏内时间）出现的。一早上起床实际上就进入了这个结局，中间没有需要做选择的地方。</p><blockquote><p>沙耶得知将<strong>伊那砂乡</strong>与外界隔开的结界已经没有了修复的可能性，而唯一的办法就是作为<strong>人身御供</strong>献出自己的<strong>生命</strong>来守护住结界，从而保护<strong>伊那砂乡</strong>里1000多位居民。</p></blockquote><p>尽管所有人都极力反对，希望<strong>沙耶</strong>不要做出这样的事情。但是<strong>沙耶</strong>最终选择在夜晚的庭院里邂逅<strong>安纲</strong>，两人一同赴死……</p><p>所以事实上，始终不与任何角色结合就会迎来这样的结局。我也是第一次玩乙女，看来选择不够明智。</p><blockquote><p>这个游戏又告诉了我眯眯眼的都是怪物。 虽然我开始玩的时候就想到了，没想到是真的。唉。</p></blockquote><p>视频在下方，其中第二段可能会虐死你，请酌情观看（我也难受死了。）最后一段是提示。</p><p>如果你不能正常查看视频，刷新一下页面即可。</p>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E5%AA%92%E4%BD%93/">媒体</category>
+      
+      <category domain="https://asakirain.github.io/categories/ACG/">ACG</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E9%A6%96%E6%8E%A8%E3%80%8C%E6%99%A8%E6%9B%A6%E6%97%B6%E3%80%81%E6%A2%A6%E8%A7%81%E5%85%AE%E3%80%8D%E5%BE%97%E5%88%B0%E5%AE%89%E7%BA%B2bad-end/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>东云妖梦录摘句#1</title>
+      <link>https://asakirain.github.io/post/%E4%B8%9C%E4%BA%91%E5%A6%96%E6%A2%A6%E5%BD%95%E6%91%98%E5%8F%A51/</link>
+      <guid>https://asakirain.github.io/post/%E4%B8%9C%E4%BA%91%E5%A6%96%E6%A2%A6%E5%BD%95%E6%91%98%E5%8F%A51/</guid>
+      <pubDate>Sat, 01 Jun 2019 09:20:36 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;&lt;img src=&quot;https://asakirain.gitee.io/assets/%E4%B8%9C%E4%BA%91%E5%A6%96%E6%A2%A6%E5%BD%95%E6%91%98%E5%8F%A51/IMG_0237.jpg&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img s</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p><img src="https://asakirain.gitee.io/assets/%E4%B8%9C%E4%BA%91%E5%A6%96%E6%A2%A6%E5%BD%95%E6%91%98%E5%8F%A51/IMG_0237.jpg"></p><p><img src="https://asakirain.gitee.io/assets/%E4%B8%9C%E4%BA%91%E5%A6%96%E6%A2%A6%E5%BD%95%E6%91%98%E5%8F%A51/IMG_0236.jpg"></p>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E5%AA%92%E4%BD%93/">媒体</category>
+      
+      <category domain="https://asakirain.github.io/categories/ACG/">ACG</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E4%B8%9C%E4%BA%91%E5%A6%96%E6%A2%A6%E5%BD%95%E6%91%98%E5%8F%A51/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>528的回忆</title>
+      <link>https://asakirain.github.io/post/528%E7%9A%84%E5%9B%9E%E5%BF%86/</link>
+      <guid>https://asakirain.github.io/post/528%E7%9A%84%E5%9B%9E%E5%BF%86/</guid>
+      <pubDate>Sat, 11 May 2019 08:01:41 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;2015年八月，我第一次正式踏进1808班。&lt;br&gt;排好座位后，你坐在我右边的右后方。&lt;br&gt;中午自修午睡，一不小心转头，&lt;br&gt;总能和你四目相对。&lt;br&gt;过了一段时间，换了第一次座位，&lt;br&gt;你坐到了我的后面。&lt;br&gt;我只是觉得你很傻逼，hhh&lt;br&gt;很喜欢转过去跟你讲话</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p>2015年八月，我第一次正式踏进1808班。<br>排好座位后，你坐在我右边的右后方。<br>中午自修午睡，一不小心转头，<br>总能和你四目相对。<br>过了一段时间，换了第一次座位，<br>你坐到了我的后面。<br>我只是觉得你很傻逼，hhh<br>很喜欢转过去跟你讲话。<br>因为一次根本不存在的赌注。<br>你就拥有了我♡<br>后来换了第二次座位，我记得那天是5.20。<br>你坐到了我后面的后面，<br>每天上课偷偷拿镜子看你，<br>之后就被班长打小报告，<br>告诉了老师。<br>很快，我的数学有了明显的进步，<br>我们就结束了第一学期，<br>来到了新七中。<br>过了一个暑假，<br>突然一切都变了样子，<br>你开始不理我，<br>一句话都不说。<br>终于到了运动会前，<br>我们又和好了，<br>但是关系大不如前。<br>你一下子进了班级前20，<br>而我还在后面。<br>2017.3.22<br>我终于受不了你的冷漠，<br>于是我们分开了七个月，<br>七个月里，<br>你没有跟我说过超过十句的话。<br>初三开学，<br>新的班主任又一次换了座位，<br>你坐到了我的右后方，<br>突然以前的那种感觉又产生，<br>于是我们又在一起了。<br>每天中午一起背书，<br>那篇出师表，<br>我背的滚瓜烂熟，<br>你却因为听我背，<br>被我带成了磕磕碰碰地背。<br>之后因为同学们起哄，<br>J知道了，<br>找了一次谈话后，<br>再一次换掉了座位，<br>你在我的左边的左边，<br>第一次月考你如愿进了年级前50，<br>而我也进了240，<br>第二次月考前，<br>那一星期你去散步的时候，<br>我找了你好几次，<br>可是你一次也没理我。<br>每次说要帮我提高成绩，<br>可最后，只有取笑我的份。<br>很好，<br>我发誓我一辈子也不理你了，<br>你喜欢谁跟我一点关系都没有，<br>你考你的重高，<br>我考我的普高，<br>再见[em]e400396[/em</p><p>这是一个真实的故事<br>男孩帅气健谈，理科很好<br>女孩活泼开朗，笑起来很美<br>我们都忘记了他们是怎么在一起的，是什么时候在一起的<br>只隐约记得一个下雨天<br>他们在楼梯的转角拥抱<br>说了很多只属于他们的悄悄话</p><p>他们的感情很坎坷<br>起起伏伏<br>男孩开始并不愿意承认<br>但是他知道自己喜欢女孩<br>他不愿意正视自己的感情<br>不愿意听到我们议论他们的名字<br>但是他知道他心里只有她</p><p>他们终于在一起了<br>进入了热恋期<br>在我们看不见的地方牵手，拥抱<br>在班级里看到他们一起进进出出的身影<br>直至<br>被班主任发现<br>第一次，男孩以一个满分回击了班主任<br>中间有数不清的阻挡<br>终于在一天的放学<br>班主任强制性要求他们分手<br>班主任希望女孩不要打扰男孩<br>男孩是考名校的高材生</p><p>班主任告诫男孩<br>离女孩远一点<br>如果女孩问他题目<br>坚决地拒绝她</p><p>女孩哭了<br>在我们看不见的地方<br>她回来的时候<br>男孩已经走了<br>她的眼睛红肿着<br>她只剩下她的朋友</p><p>她去了操场<br>放声大哭</p><p>他们的故事还没开始就已经结束</p><p>她告诉自己忘了她<br>她忘不了她<br>她心里有那个姓李的男孩</p><p>有没有一个借口<br>让他别走<br>别走</p><p>这就是他和她的故事</p>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E6%97%A5%E5%B8%B8/">日常</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/528%E7%9A%84%E5%9B%9E%E5%BF%86/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>《考试》 佚名</title>
+      <link>https://asakirain.github.io/post/%E3%80%8A%E8%80%83%E8%AF%95%E3%80%8B-%E4%BD%9A%E5%90%8D/</link>
+      <guid>https://asakirain.github.io/post/%E3%80%8A%E8%80%83%E8%AF%95%E3%80%8B-%E4%BD%9A%E5%90%8D/</guid>
+      <pubDate>Sat, 11 May 2019 05:10:36 GMT</pubDate>
+      
+        
+        
+      <description>&lt;blockquote&gt;
+&lt;p&gt;图片选自网络&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;img src=&quot;https://asakirain.gitee.io/assets/%E3%80%8A%E8%80%83%E8%AF%95%E3%80%8B-%E4%BD%9A%E5%90</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<blockquote><p>图片选自网络</p></blockquote><p><img src="https://asakirain.gitee.io/assets/%E3%80%8A%E8%80%83%E8%AF%95%E3%80%8B-%E4%BD%9A%E5%90%8D/IMG_8092.gif"></p><blockquote><p><em>I will kill you</em> </p></blockquote><p>盼望着，盼望着，考试来了，死神的脚步近了。一切都像刚死去的样子，凄凄凉流下了泪。作业多起来了，试卷堆起来了，我们的脸囧起来了。</p><p>老师偷偷的从办公室里走出来，凶神恶煞的。教室里、操场上瞧去，一大片一大片满是试卷。做着，写着，涂两下修正液，打两个草稿，风哗哗吹的，草摇来摇去的。语文，数学，英语，你不让我，我不让你，都发了试卷赶趟儿。多得像雨，堆得像山，做得像鬼。卷里带着些难高兴起来了，呼朋引伴的***，准备报复老师。他们的头发稀稀疏疏的，在雨里飘荡着。</p><p>天上的冤魂渐渐多了，地上的坟墓也多了。城里乡下，家家户户，老老小小，也赶趟似的，一个个都出来了。祭奠祭奠孩子，焚烧焚烧试卷。“考试害死多少学生”，刚起头儿，以后有的是受罪的孩子，有的是破灭的希望。</p><p>考试像刚出世的灾星，从头到脚都是坏的，它破坏着。考试像游荡的死神，面目狰狞的，奸笑着奔跑着。考试像恐怖的噩梦，有铁一般的胳膊和腰脚，把我们带往地狱。</p><blockquote><p>一直存在手机备忘录里，今天就发出来吧</p><p>似乎是在哔哩哔哩评论区看到的。</p></blockquote>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E6%97%A5%E5%B8%B8/">日常</category>
+      
+      <category domain="https://asakirain.github.io/categories/%E5%AA%92%E4%BD%93/">媒体</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E3%80%8A%E8%80%83%E8%AF%95%E3%80%8B-%E4%BD%9A%E5%90%8D/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>「转载」此景美甚，愿同伊共享</title>
+      <link>https://asakirain.github.io/post/%E3%80%8C%E8%BD%AC%E8%BD%BD%E3%80%8D%E6%AD%A4%E6%99%AF%E7%BE%8E%E7%94%9A%EF%BC%8C%E6%84%BF%E5%90%8C%E4%BC%8A%E5%85%B1%E4%BA%AB/</link>
+      <guid>https://asakirain.github.io/post/%E3%80%8C%E8%BD%AC%E8%BD%BD%E3%80%8D%E6%AD%A4%E6%99%AF%E7%BE%8E%E7%94%9A%EF%BC%8C%E6%84%BF%E5%90%8C%E4%BC%8A%E5%85%B1%E4%BA%AB/</guid>
+      <pubDate>Sat, 11 May 2019 05:08:01 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;&lt;img src=&quot;https://asakirain.gitee.io/assets/%E3%80%8C%E8%BD%AC%E8%BD%BD%E3%80%8D%E6%AD%A4%E6%99%AF%E7%BE%8E%E7%94%9A%EF%BC%8C%E6%84%BF%E5</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p><img src="https://asakirain.gitee.io/assets/%E3%80%8C%E8%BD%AC%E8%BD%BD%E3%80%8D%E6%AD%A4%E6%99%AF%E7%BE%8E%E7%94%9A%EF%BC%8C%E6%84%BF%E5%90%8C%E4%BC%8A%E5%85%B1%E4%BA%AB/IMG_9825.jpg"></p><p><img src="https://asakirain.gitee.io/assets/%E3%80%8C%E8%BD%AC%E8%BD%BD%E3%80%8D%E6%AD%A4%E6%99%AF%E7%BE%8E%E7%94%9A%EF%BC%8C%E6%84%BF%E5%90%8C%E4%BC%8A%E5%85%B1%E4%BA%AB/IMG_9820.jpg"></p><p><img src="https://asakirain.gitee.io/assets/%E3%80%8C%E8%BD%AC%E8%BD%BD%E3%80%8D%E6%AD%A4%E6%99%AF%E7%BE%8E%E7%94%9A%EF%BC%8C%E6%84%BF%E5%90%8C%E4%BC%8A%E5%85%B1%E4%BA%AB/IMG_9821.jpg"></p><p><img src="https://asakirain.gitee.io/assets/%E3%80%8C%E8%BD%AC%E8%BD%BD%E3%80%8D%E6%AD%A4%E6%99%AF%E7%BE%8E%E7%94%9A%EF%BC%8C%E6%84%BF%E5%90%8C%E4%BC%8A%E5%85%B1%E4%BA%AB/IMG_9822.jpg"></p><p><img src="https://asakirain.gitee.io/assets/%E3%80%8C%E8%BD%AC%E8%BD%BD%E3%80%8D%E6%AD%A4%E6%99%AF%E7%BE%8E%E7%94%9A%EF%BC%8C%E6%84%BF%E5%90%8C%E4%BC%8A%E5%85%B1%E4%BA%AB/IMG_9823.jpg"></p><p><img src="https://asakirain.gitee.io/assets/%E3%80%8C%E8%BD%AC%E8%BD%BD%E3%80%8D%E6%AD%A4%E6%99%AF%E7%BE%8E%E7%94%9A%EF%BC%8C%E6%84%BF%E5%90%8C%E4%BC%8A%E5%85%B1%E4%BA%AB/IMG_9824.jpg"></p><p><img src="https://asakirain.gitee.io/assets/%E3%80%8C%E8%BD%AC%E8%BD%BD%E3%80%8D%E6%AD%A4%E6%99%AF%E7%BE%8E%E7%94%9A%EF%BC%8C%E6%84%BF%E5%90%8C%E4%BC%8A%E5%85%B1%E4%BA%AB/IMG_9826.jpg"></p><blockquote><p>原作者：奚敬华</p><p>出处：QQ空间</p></blockquote>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E6%97%A5%E5%B8%B8/">日常</category>
+      
+      <category domain="https://asakirain.github.io/categories/%E5%AA%92%E4%BD%93/">媒体</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E3%80%8C%E8%BD%AC%E8%BD%BD%E3%80%8D%E6%AD%A4%E6%99%AF%E7%BE%8E%E7%94%9A%EF%BC%8C%E6%84%BF%E5%90%8C%E4%BC%8A%E5%85%B1%E4%BA%AB/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>《食物语》试玩</title>
+      <link>https://asakirain.github.io/post/%E3%80%8A%E9%A3%9F%E7%89%A9%E8%AF%AD%E3%80%8B%E8%AF%95%E7%8E%A9/</link>
+      <guid>https://asakirain.github.io/post/%E3%80%8A%E9%A3%9F%E7%89%A9%E8%AF%AD%E3%80%8B%E8%AF%95%E7%8E%A9/</guid>
+      <pubDate>Sat, 11 May 2019 05:04:12 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;今天（周六）回家，无意间看到taptap的通知，才知道食物语ios的删档内测开启了。很幸运，我在我的邮箱里找到了testflight的内测资格码。于是很开心地下载之。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://asakirain.gitee.io/assets/%E</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p>今天（周六）回家，无意间看到taptap的通知，才知道食物语ios的删档内测开启了。很幸运，我在我的邮箱里找到了testflight的内测资格码。于是很开心地下载之。</p><p><img src="https://asakirain.gitee.io/assets/%E3%80%8A%E9%A3%9F%E7%89%A9%E8%AF%AD%E3%80%8B%E8%AF%95%E7%8E%A9/2189C01B1FF1055CE40959A9D38712DB.png"></p><p>700MB的游戏，大小还算适中。进入登陆页面后如期出现了腾讯传统：“与QQ好友玩、与微信好友玩和游客登陆。”emmm。好吧，QQ登陆！值得一提的是，本来登录界面UI是有动效的，不过首次加载的时候我没显示，不知道是不是bug呢。</p><p><img src="https://asakirain.gitee.io/assets/%E3%80%8A%E9%A3%9F%E7%89%A9%E8%AF%AD%E3%80%8B%E8%AF%95%E7%8E%A9/IMG_9690.png"></p><p><img src="https://asakirain.gitee.io/assets/%E3%80%8A%E9%A3%9F%E7%89%A9%E8%AF%AD%E3%80%8B%E8%AF%95%E7%8E%A9/IMG_9679.png"></p><p>游戏开头就有一段有趣的起床剧情（哇佛跳墙美如画）和世界观介绍，我挺喜欢这样的设定。佛跳墙的片段。从这张cg里看出好像是异色瞳。但是在live2d里好像没体现出来。</p><p><img src="https://asakirain.gitee.io/assets/%E3%80%8A%E9%A3%9F%E7%89%A9%E8%AF%AD%E3%80%8B%E8%AF%95%E7%8E%A9/IMG_9681.png"></p><p><img src="https://asakirain.gitee.io/assets/%E3%80%8A%E9%A3%9F%E7%89%A9%E8%AF%AD%E3%80%8B%E8%AF%95%E7%8E%A9/IMG_9700.png"></p><p><img src="https://asakirain.gitee.io/assets/%E3%80%8A%E9%A3%9F%E7%89%A9%E8%AF%AD%E3%80%8B%E8%AF%95%E7%8E%A9/IMG_9680.png"></p><p>不过自然，任何一个游戏都不会让你有一个好的开局，不久之后，主角就被迫毁坏了食物语，切断了与食魂之间的记忆羁绊，这里剧情处理得很好，不显得尴尬，而是给人刻下一种重新寻回旧日时光与记忆的执念。</p><p><img src="https://asakirain.gitee.io/assets/%E3%80%8A%E9%A3%9F%E7%89%A9%E8%AF%AD%E3%80%8B%E8%AF%95%E7%8E%A9/IMG_9699.jpg"></p><p>北京烤鸭手的动效</p><p>食魂们自然都很好看，像开头剧情里的锅包肉、佛跳墙或者是北京烤鸭我都很喜欢ww（顺带一提，我喜欢好看的男孩子呀）live2d做的很精细，以前我玩过梦间集，但是完美做的live2d并没有人物手上的动作。同时，食物语角色们的配音都很齐全。（可惜我在返校之前没一个能把他们寻回的）</p><blockquote><p>2021.09.16:<br>开服的一段时间我还是玩了很久的，之后孟婆汤没抽出来就弃坑了<br>只知道后来游戏换运营了（原运营还是不错的），之后口碑就一直变差<br>可惜了游戏本身的高质量</p></blockquote>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E5%AA%92%E4%BD%93/">媒体</category>
+      
+      <category domain="https://asakirain.github.io/categories/ACG/">ACG</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E3%80%8A%E9%A3%9F%E7%89%A9%E8%AF%AD%E3%80%8B%E8%AF%95%E7%8E%A9/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>Melangez真名识破</title>
+      <link>https://asakirain.github.io/post/Melangez%E7%9C%9F%E5%90%8D%E8%AF%86%E7%A0%B4/</link>
+      <guid>https://asakirain.github.io/post/Melangez%E7%9C%9F%E5%90%8D%E8%AF%86%E7%A0%B4/</guid>
+      <pubDate>Sat, 11 May 2019 04:59:04 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;就在这天，我们可爱的老弟&lt;/p&gt;
+&lt;p&gt;Swift：2324094307&lt;/p&gt;
+&lt;p&gt;遭到了真名识破EX的攻击&lt;/p&gt;
+&lt;p&gt;他的真名是：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://asakirain.gitee.io/assets/Melangez%E7%9C%</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p>就在这天，我们可爱的老弟</p><p>Swift：2324094307</p><p>遭到了真名识破EX的攻击</p><p>他的真名是：</p><p><img src="https://asakirain.gitee.io/assets/Melangez%E7%9C%9F%E5%90%8D%E8%AF%86%E7%A0%B4/IMG_9294.png"></p>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E6%97%A5%E5%B8%B8/">日常</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/Melangez%E7%9C%9F%E5%90%8D%E8%AF%86%E7%A0%B4/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>看完了《付丧神出租中》</title>
+      <link>https://asakirain.github.io/post/%E7%9C%8B%E5%AE%8C%E4%BA%86%E3%80%8A%E4%BB%98%E4%B8%A7%E7%A5%9E%E5%87%BA%E7%A7%9F%E4%B8%AD%E3%80%8B/</link>
+      <guid>https://asakirain.github.io/post/%E7%9C%8B%E5%AE%8C%E4%BA%86%E3%80%8A%E4%BB%98%E4%B8%A7%E7%A5%9E%E5%87%BA%E7%A7%9F%E4%B8%AD%E3%80%8B/</guid>
+      <pubDate>Sat, 11 May 2019 04:57:38 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;&lt;img src=&quot;https://asakirain.gitee.io/assets/%E7%9C%8B%E5%AE%8C%E4%BA%86%E3%80%8A%E4%BB%98%E4%B8%A7%E7%A5%9E%E5%87%BA%E7%A7%9F%E4%B8%AD%E3</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p><img src="https://asakirain.gitee.io/assets/%E7%9C%8B%E5%AE%8C%E4%BA%86%E3%80%8A%E4%BB%98%E4%B8%A7%E7%A5%9E%E5%87%BA%E7%A7%9F%E4%B8%AD%E3%80%8B/IMG_9266.jpg"></p><p><img src="https://asakirain.gitee.io/assets/%E7%9C%8B%E5%AE%8C%E4%BA%86%E3%80%8A%E4%BB%98%E4%B8%A7%E7%A5%9E%E5%87%BA%E7%A7%9F%E4%B8%AD%E3%80%8B/IMG_9265.jpg"></p><blockquote><p>图片取自<a href="https://zh.moegirl.org/%E4%BB%98%E4%B8%A7%E7%A5%9E%E5%87%BA%E7%A7%9F%E4%B8%AD">萌娘百科</a></p></blockquote><p>这周把这部番剧看完了。</p><p>这部番总体来说还是令我十分满意的。我个人比较喜欢与日系妖怪或是神明有关的题材，所以说这部番恰好和我胃口。</p><p>不过值得一提的是，我的喜好可能是比较小众的，因为看这部番的人少之又少，并且我曾经看过的番剧也有身边人闻所未闻，比如《结界师》、《钢铁神兵》这类的。</p><p>说回这部番剧。故事围绕出云屋店主阿红和清次而一个个展开，几件事情结合紧凑，先前出场，并解决了问题的角色在之后还会频繁出现，给人以一种解决问题顺便交上朋友的有趣感觉。</p><p>被叫做名侦探的清次破解问题的思路十分的清晰，其中部分的推断我自己也有所思考并和剧情吻合，不像看《名侦探柯南》一样（说实话这个没啥可以相比的）一脸懵逼就听到柯南说：“我知道了”，然后傻傻地听着他陈述犯罪手法。</p><p>在这其中，付丧神们也帮了大忙。我最初知道付丧神是在刀剑乱舞里，这部番中的付丧神更贴合我的想象，毕竟由物品化身而来，他们的特征都十分像本体。每一个付丧神的形象都很鲜明，5个付丧神里没一个摸鱼的，也没一个是配角，所有人都有发挥恰到好处的作用。所以说刻画地很鲜明成功。</p><p>我挺喜欢番剧的OP和ED的。——是的，很少有番剧能让我同时喜欢上片头片尾曲，曲子我暂时还没办法放出。简单来说，OP极富动感，令人耳目一新，ED声音和画面配合的很好，给人以空灵美好的感觉，仓木麻衣的声音真的挺好听的，而且歌词写的也挺好，紧扣住了结局。</p><p>整部番剧中，我最喜欢的角色是半助先生了。在他的身上，我看到了一个江户女子在遭遇感情破裂后，以一种男扮女装的全新方式重现在人们眼前，并且取得大家的认可的奇特经历，这使我耳目一新的。——并且，我觉得他好看ww。</p><p>在番剧的结尾，暗恋了整部番剧阿红的清次终于在阿红的主动操作下有了在一起发糖的机会，这样的情节设计我很喜欢，因为这是HappyEnd，并且两个人解决了之前主人公们的一系列问题（多为情感问题）后，终于解决了他们两个人自己的感情问题XD</p><p>摘自最终话下方的评论：“终于可以说了（。）原作小说的续作讲的是他俩孩子的故事，无论动画改不改世界线会收束的[2233娘_卖萌]”所以说这一段有趣的故事算是结束了，可能是我内心感知的影响，我并不想去找续作来看，所以就让这个故事的圆满结局一直停留在番剧结尾好了。</p>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E5%AA%92%E4%BD%93/">媒体</category>
+      
+      <category domain="https://asakirain.github.io/categories/ACG/">ACG</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E7%9C%8B%E5%AE%8C%E4%BA%86%E3%80%8A%E4%BB%98%E4%B8%A7%E7%A5%9E%E5%87%BA%E7%A7%9F%E4%B8%AD%E3%80%8B/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>短暂的周末</title>
+      <link>https://asakirain.github.io/post/%E7%9F%AD%E6%9A%82%E7%9A%84%E5%91%A8%E6%9C%AB/</link>
+      <guid>https://asakirain.github.io/post/%E7%9F%AD%E6%9A%82%E7%9A%84%E5%91%A8%E6%9C%AB/</guid>
+      <pubDate>Sat, 11 May 2019 04:53:53 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;说完了校庆的感想，我来吐槽一下宁波中学抠门的放假规定。&lt;/p&gt;
+&lt;p&gt;首先我们来看看国庆节&lt;/p&gt;
+&lt;p&gt;——国庆节，大日子，举国同庆，放7天假期，不去计较经济亏损多少亿&lt;/p&gt;
+&lt;p&gt;接下来是我们宁中“百廿宁中，双甲风华”校庆&lt;/p&gt;
+&lt;p&gt;——120周年校庆，恰逢双甲子</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p>说完了校庆的感想，我来吐槽一下宁波中学抠门的放假规定。</p><p>首先我们来看看国庆节</p><p>——国庆节，大日子，举国同庆，放7天假期，不去计较经济亏损多少亿</p><p>接下来是我们宁中“百廿宁中，双甲风华”校庆</p><p>——120周年校庆，恰逢双甲子，大事情，全校与校友与社会各界人士同庆</p><p>然而</p><p>——国庆节放7天假，宁中不会多放一天假，这很正常。但是宁中不仅吃掉了我们一天周末，导致很大一部分人的培训班课时要另行调整，而且还要求我们周日下午照常回校。</p><p>这也太小气了啊5555</p><p>我听说上次中秋节，有些（沙雕）家长在群里抱怨说周二早上返校堵车之类的。不知道是不是这些家长的言论左右了宁中不知道哪个部门的（yasi）决定。</p><p>总之，明天下午又要返校，同感周末短暂。</p>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E6%97%A5%E5%B8%B8/">日常</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E7%9F%AD%E6%9A%82%E7%9A%84%E5%91%A8%E6%9C%AB/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>记宁中百廿校庆</title>
+      <link>https://asakirain.github.io/post/%E8%AE%B0%E5%AE%81%E4%B8%AD%E7%99%BE%E5%BB%BF%E6%A0%A1%E5%BA%86/</link>
+      <guid>https://asakirain.github.io/post/%E8%AE%B0%E5%AE%81%E4%B8%AD%E7%99%BE%E5%BB%BF%E6%A0%A1%E5%BA%86/</guid>
+      <pubDate>Sat, 11 May 2019 04:53:25 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;今天周六，在学校里待了一天，参加了整场宁波中学的校庆。&lt;/p&gt;
+&lt;p&gt;总体来说我还是挺高兴的，不仅仅只是别人眼里说的“120周年校庆难得一遇，你们很幸运”，而且还有活动带给我的充实感。&lt;/p&gt;
+&lt;p&gt;我喜欢今天上午的表演。就拿以前七中的校庆来对比，总感觉它更胜一筹。各种重要</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p>今天周六，在学校里待了一天，参加了整场宁波中学的校庆。</p><p>总体来说我还是挺高兴的，不仅仅只是别人眼里说的“120周年校庆难得一遇，你们很幸运”，而且还有活动带给我的充实感。</p><p>我喜欢今天上午的表演。就拿以前七中的校庆来对比，总感觉它更胜一筹。各种重要活动穿插在表演中，表演是紧贴校庆主题的，而不是像七中那样先是各种致辞，完了以后就只有表演。同时，会场上的几块大屏幕也给表演增色不少，因为一部分的表演通过屏幕能更好地传递情感。这些屏幕校庆三天前就开始一块块拼起来了，最后开完上午的典礼就拆了，让我感觉有点可惜——不过这是在正常不过的操作嘛。在上午的庆典活动中，我确实有被感染到。具体怎样就不多说了。</p><p>下午我们听了贺贤土院士关于他的核研究经历的讲座——说是讲座，我其实觉得更像是交流会，因为贺先生在讲座中并没有像演讲一样提出鲜明的呼吁或者号召，只是在用心地讲述他的核武器研究历程。我喜欢这样的讲座，因为我觉得富含自己亲身经历的讲座能让人从心里有所领会或者感想，而不是一味地说理，或是举一些似真非真的例子，只是让人费力地理解，听完以后什么都没有记住。贺先生的经历让我详细地了解了中国是怎么研究出原子弹，再是氢弹，继而是现在正在着手研发的中子弹。在他结束讲述后的提问也让我认识到一些有趣的内幕——比如说中国和美国原子弹的结构并没有媒体宣传的那样有所不同，而是基本一致的，这一点具贺先生所说是没有根据，只是媒体炒作，没有经过辟谣的。</p><p>不过，今天的校庆也有一些小事情让我觉得有点不舒服。</p><p>上午在操场看表演的时候，到了唱歌、跳舞这些可能有本班同学或者认识的老师参与的节目，前面有一批人站起来或者是半蹲着认人，其中不乏我们班一部分的同学。基本算是坐在班级末尾，前面的同学这一系列在我看来缺乏素质的举动使我完全看不见台上的任何表演。同时，身后有同学不停地讲话讨论游戏，乐此不彼。虽然他也有注意控制音量，但是我还是觉得不妥。</p><p>下午听讲座，当来到了同学提问环节时，全场都有些躁动，加之贺先生此时声音不再那么响亮，有时候身边的同学一吵，就听不清楚他在讲什么。</p><p>——之所以把坏的说在后头，是因为在我的心中，这次的校庆是非常成功的，这一些小事情也不是有必要搬到台面上讲（好好批斗一番），加之我也认识到，我的三观和班里一些同学本来就有一些不同。我在这种情况下应当是选择保持沉默，只是在心里不认同就好了。</p>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E6%97%A5%E5%B8%B8/">日常</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E8%AE%B0%E5%AE%81%E4%B8%AD%E7%99%BE%E5%BB%BF%E6%A0%A1%E5%BA%86/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>看完了花丸 -續-</title>
+      <link>https://asakirain.github.io/post/%E7%9C%8B%E5%AE%8C%E4%BA%86%E8%8A%B1%E4%B8%B8-%E7%BA%8C/</link>
+      <guid>https://asakirain.github.io/post/%E7%9C%8B%E5%AE%8C%E4%BA%86%E8%8A%B1%E4%B8%B8-%E7%BA%8C/</guid>
+      <pubDate>Sat, 11 May 2019 04:53:00 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;昨天晚上看完了花丸 -續- （下称花丸2）。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://asakirain.gitee.io/assets/%E7%9C%8B%E5%AE%8C%E4%BA%86%E8%8A%B1%E4%B8%B8-%E7%BA%8C/3835586</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p>昨天晚上看完了花丸 -續- （下称花丸2）。</p><p><img src="https://asakirain.gitee.io/assets/%E7%9C%8B%E5%AE%8C%E4%BA%86%E8%8A%B1%E4%B8%B8-%E7%BA%8C/38355863D0D94F019BAE9F748EC260DE.png"></p><p>好开心啊，本来的话花丸2前面大部分是今年六月保送考之后看的。直到一个星期前，一直留着三集没有看。最后几集剧情稍稍波折了一下，不过整体来说还是很轻松圆满的。</p><p>——正如别的同事说的：1.花丸日常向</p><p>2.花丸是用来满足审神者各种美好的臆想的XD</p><p>安定在最后一集回来了，不过回来的历程很奇妙啊。</p><p>时至夕阳西下，安定在某个时代的田垄上面独自行走，身上的传送器突然发了光。</p><p>定睛一看，安定发现自己回到了这个本丸的最初时光，站在那棵熟悉的千叶樱下面。——千叶樱此时并没有开花。此时的本丸仅有加州清光，压切长谷部 ，今剑三振刀。清光在走廊的转角偷偷张望，看到今剑问起清光刀友（不吐槽这个名字了，字面意思就好）的事，清光自然提起了安定。安定转头跑回树旁，想与同一时间线上的清光相逢。——他用手抚着树干，嘴里默念了一句，让我回到清光身边。</p><p>此时的清光正在7-1战斗，面对对面的一群极化胁差，情况紧张。安定突然从天空中掉了下来。有幸突然重逢的两人士气高涨，双双真剑必杀并秀出了二打开眼的神奇操作。在所有人的合力战斗下，时间溯行军被打败。但是安定发现自己的传送器在战斗中遭到损坏。安定在清光一行人走之后不久也成功启动了传送器。然而在本丸的大家的眼里，安定在4个月后才回来。</p><p>所以说安定少活了4个月。这对于刀剑付丧神来说是什么概念那我也说不清楚啊XD。</p><p>花丸系列我觉得应该还会有第三季。不过现在放在眼前没看完的还有活击-刀剑乱舞这部番。</p><p>它讲的就是贴近历史的战斗方面的故事了，之前看过3集，感觉画面有点压抑，然后兼桑和堀川的心理都非常的矛盾，后面听说还有比较虐心的部分。所以还没准备看。</p><p>话说回来，我可不是一个称职的审神者。日服游戏已经弃了两个月没开了，国服快要半年没动过了。（刚刚想进日服发现在维护）而且肝游戏没什么耐心，——虽说刀剑乱舞游戏性确实不高，还是番剧好看</p>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/ACG/">ACG</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E7%9C%8B%E5%AE%8C%E4%BA%86%E8%8A%B1%E4%B8%B8-%E7%BA%8C/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>1809-1811吕氏春秋</title>
+      <link>https://asakirain.github.io/post/1809-1811%E5%90%95%E6%B0%8F%E6%98%A5%E7%A7%8B/</link>
+      <guid>https://asakirain.github.io/post/1809-1811%E5%90%95%E6%B0%8F%E6%98%A5%E7%A7%8B/</guid>
+      <pubDate>Sat, 11 May 2019 04:52:17 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;0904：吕：非诚勿扰里面有个女的提出生孩子要跟她姓&lt;/p&gt;
+&lt;p&gt;——（看向项潇钦）&lt;/p&gt;
+&lt;p&gt;——吕：你&lt;strong&gt;如果&lt;/strong&gt;是男的你同意吗&lt;/p&gt;
+&lt;p&gt;0919：文明的外表下是一颗野兽的心。&lt;/p&gt;
+&lt;p&gt;1016：我在黑板上写了非常详细完整的板</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p>0904：吕：非诚勿扰里面有个女的提出生孩子要跟她姓</p><p>——（看向项潇钦）</p><p>——吕：你<strong>如果</strong>是男的你同意吗</p><p>0919：文明的外表下是一颗野兽的心。</p><p>1016：我在黑板上写了非常详细完整的板书。</p><p>1026：唉我叫你回答问题你在干什么啊？（上课5分钟后）</p><p>——应孔淼：我在找书</p><p>——LJJ：找书？我课都上了30分钟了！</p><p>1026：笨人每班有，8班特别多。</p>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E6%97%A5%E5%B8%B8/">日常</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/1809-1811%E5%90%95%E6%B0%8F%E6%98%A5%E7%A7%8B/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>1809-1812建华语录</title>
+      <link>https://asakirain.github.io/post/1809-1812%E5%BB%BA%E5%8D%8E%E8%AF%AD%E5%BD%95/</link>
+      <guid>https://asakirain.github.io/post/1809-1812%E5%BB%BA%E5%8D%8E%E8%AF%AD%E5%BD%95/</guid>
+      <pubDate>Sat, 11 May 2019 04:51:15 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;0902：衣服是这样，人生也是这样，要慎重地对待第一滴油滴滴下来的时候。&lt;/p&gt;
+&lt;p&gt;0903：（《沁园春·长沙》）上阙就翔写得好，下阕就粪土写得好，整个《沁园春·长沙》就……&lt;/p&gt;
+&lt;p&gt;——友情值千金&lt;/p&gt;
+&lt;p&gt;——视金钱如粪土&lt;/p&gt;
+&lt;p&gt;——粪土就这样被你</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p>0902：衣服是这样，人生也是这样，要慎重地对待第一滴油滴滴下来的时候。</p><p>0903：（《沁园春·长沙》）上阙就翔写得好，下阕就粪土写得好，整个《沁园春·长沙》就……</p><p>——友情值千金</p><p>——视金钱如粪土</p><p>——粪土就这样被你玩来玩去的，粪土也有尊严的啊。</p><p>0905：有一天，男生送给女生一束鲜花，女生突然说：“我不吃这个”</p><p>0917：“曹操”的墓里挖出一个头盖骨，专家考证说：“这是曹操的头盖骨”。</p><p>——没想到曹操的头盖骨边上又发现一个头盖骨。</p><p>——专家经过考证，又说：“这是曹操小时候的头盖骨”。</p><p>——曹操的头盖骨和曹操小时候的头盖骨都挖出来了，那这肯定是曹操的墓了吧。</p><p>1008：真正的奢侈品是你连名字都没听过的。</p><p>1010：扎着两个小辫子，有一副天真无邪的外貌，没想到内心却如此深邃。</p><p>1010：一个富豪永远不会嘲笑一个努力奋斗的人。</p><p>1010：ZJH：星星，你是哪里人？</p><p>——星星：山东人</p><p>ZJH的妻子：星星，你是哪里人？</p><p>——星星：宁波人</p><p>ZJH与妻子：星星，你是哪里人？</p><p>——星星（3岁）：讲山东话的是山东人，讲宁波话的是宁波人。我讲普通话，我是普通人。</p><p>潘烨成：老师我爱你</p><p>——ZJH：你爱我也没用，你性别也不对。</p>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E6%97%A5%E5%B8%B8/">日常</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/1809-1812%E5%BB%BA%E5%8D%8E%E8%AF%AD%E5%BD%95/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>其他金句</title>
+      <link>https://asakirain.github.io/post/%E5%85%B6%E4%BB%96%E9%87%91%E5%8F%A5/</link>
+      <guid>https://asakirain.github.io/post/%E5%85%B6%E4%BB%96%E9%87%91%E5%8F%A5/</guid>
+      <pubDate>Sat, 11 May 2019 04:50:30 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;董寅凯：你知道双休日要干什么嘛？（0831）&lt;/p&gt;
+&lt;p&gt;——双修，当然是双修&lt;/p&gt;
+&lt;p&gt;董寅凯：郁辰曰：“人不可以不基”（0904）&lt;/p&gt;
+&lt;p&gt;潘烨成：老师，我要买8848,！因为它是成功的象征。&lt;/p&gt;
+&lt;p&gt;——老师：我买了OPPO，因为它能美颜。&lt;/p&gt;
+</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p>董寅凯：你知道双休日要干什么嘛？（0831）</p><p>——双修，当然是双修</p><p>董寅凯：郁辰曰：“人不可以不基”（0904）</p><p>潘烨成：老师，我要买8848,！因为它是成功的象征。</p><p>——老师：我买了OPPO，因为它能美颜。</p><p>——高子雄：竟敢做广告！</p><p>项潇钦：夏雨悦不要~~~~（0918-19:41）</p><p>董寅凯：今天第一次，破处了（没洗澡）！！！（0926）</p><p>董寅凯：死的通透，死的彻底，死的明白（0928）</p><p>董寅凯：做人要有信誉*（和谐社会）（0928）</p><p>董寅凯：嬴政下面是女的（双重意思）（0928）</p><blockquote><p>奚敬华：——看这个地平线，它又宽又长。（0929）</p></blockquote><p>——赵晨凯：——看这个奚敬华，他又窄又胖。</p><p>X■H说：Z■K插破的处■膜比我见过的女人还多。</p><p><a href="%E9%83%81%E8%BE%B0%EF%BC%8C%E4%BD%A0%E4%B8%81%E4%B8%81%E4%B8%8A%E7%BC%BA%E4%B8%80%E4%B8%AAcpr%E7%9A%84%E5%A4%B4%E3%80%82">董寅凯：</a>（1007）</p><p>赵晨凯：舔就够了。（1010）</p><p>赵晨凯：外表不在乎，内心mmp（说奚敬华）（1010）</p><p>董寅凯：sock my dick♂.（1010）</p><p>奚敬华：对A，要不起。（1010）</p><p><a href="%E5%86%BB%E6%92%92%E9%9B%B7%EF%BC%8C%E9%B8%A1%E5%B7%B4%E5%91%B1%E5%91%B1%E6%80%BC%EF%BC%8C%E6%8B%BF%E6%8B%BF%E9%83%A8%E5%B4%A9%E5%82%AC%E5%82%AC">王思哲：</a>（1010）</p><p>应孔淼：潘烨成认识了一些刚♂交的朋友。（1010）</p><p>董寅凯：我胸围84.3，肯定比我们班有些女生大。（1015）</p><p>潘烨成：老师我爱你！(1016)</p><p>——ZJH：你爱我也没用，你性别也不对。</p><p>ZJH：西游记中的神仙都已经长生不老了，那他们吃仙桃干什膜？(1016)</p><p>——王儒：去除鱼尾纹</p><p>邬老师：如何用现在进行时表示将来？</p><p>——奚敬华：Oh , I’m coming.</p><p>——邬老师：Oh , I’m coming.</p><p>徐老师：比如说——爱养小动物</p><p>——沈阳：蟑螂。</p><p>ZM：120周年，非常难得了，130周年、十年以后。（1019）</p><p>——虞思涵：我死了。</p><p>——ZM：唉这个真有可能的。</p><p>董寅凯：干粉灭火器里面是什么？（xxxx）</p><p>——郁辰：……</p><p>——董寅凯：面粉？</p><p>竹老师：你现在对生产者说：“我要一脸更快的汽车。”等于以前人们说：“我要一匹更快的马。”。你要说：“我要一朵蘑菇云（筋斗云）。”（1025）</p><p>——众：筋斗云，快炸！！！</p><p>夏雨悦：王思哲适合去代言，黑人牙膏。（1026）</p><p>奚敬华：“燚”[yì]，四个火，用于人名。</p><p>——赵晨凯：奚燚（蜥蜴）。</p><p>「先有汪康后有天」</p><p>「高等代数日神仙」</p><p>「敬华联赛一等奖」</p><p>「潮丞哈哈笑翻天」（1106）</p><p>赵晨凯：学校音箱的音乐放出来像雄壮的死胖子。（1106）</p><p>[奚敬华有一本文言文讲解，但是封面被他拆了（空白的）]（1106）</p><p>——郁辰：敬华春宫图。</p><p>——傅霏忆：怎么没封皮啊，不要脸的。</p><p>赵晨凯：水浴温度不够。（1108）</p><p>——LC：时间长了就一样了。</p><p>——赵晨凯：……</p><p>[众：笑]</p><p>——赵晨凯：时间长了就凉了啊。</p><p>——LC：水浴加热可以保持恒温。</p><p>——赵晨凯：水槽不能直接加热。</p><p>——LC：有专门的水浴加热锅啊</p><p>[众：笑]</p>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E6%97%A5%E5%B8%B8/">日常</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E5%85%B6%E4%BB%96%E9%87%91%E5%8F%A5/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>七玖的万水千山</title>
+      <link>https://asakirain.github.io/post/%E4%B8%83%E7%8E%96%E7%9A%84%E4%B8%87%E6%B0%B4%E5%8D%83%E5%B1%B1/</link>
+      <guid>https://asakirain.github.io/post/%E4%B8%83%E7%8E%96%E7%9A%84%E4%B8%87%E6%B0%B4%E5%8D%83%E5%B1%B1/</guid>
+      <pubDate>Sat, 11 May 2019 04:50:13 GMT</pubDate>
+      
+        
+        
+      <description>&lt;blockquote&gt;
+&lt;p&gt;∞——有生命的一切都会发光，有生命的一切都会痛苦。&lt;/p&gt;
+&lt;/blockquote&gt;
+</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<blockquote><p>∞——有生命的一切都会发光，有生命的一切都会痛苦。</p></blockquote>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E9%BB%98%E8%AE%A4/">默认</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E4%B8%83%E7%8E%96%E7%9A%84%E4%B8%87%E6%B0%B4%E5%8D%83%E5%B1%B1/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>1809-1812校长讲话</title>
+      <link>https://asakirain.github.io/post/1809-1812%E6%A0%A1%E9%95%BF%E8%AE%B2%E8%AF%9D/</link>
+      <guid>https://asakirain.github.io/post/1809-1812%E6%A0%A1%E9%95%BF%E8%AE%B2%E8%AF%9D/</guid>
+      <pubDate>Sat, 11 May 2019 04:49:47 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;0910：少年娘，则中国娘&lt;/p&gt;
+&lt;p&gt;——犯我中华者，讨厌～～&lt;/p&gt;
+&lt;p&gt;0927：老师:你们数学老师是谁？&lt;/p&gt;
+&lt;p&gt;——众人:洪老师&lt;/p&gt;
+&lt;p&gt;——老师:哦，小洪啊。&lt;/p&gt;
+&lt;p&gt;——……&lt;/p&gt;
+&lt;p&gt;——老师:我们家有条狗，我叫它小红。&lt;/p&gt;
+</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p>0910：少年娘，则中国娘</p><p>——犯我中华者，讨厌～～</p><p>0927：老师:你们数学老师是谁？</p><p>——众人:洪老师</p><p>——老师:哦，小洪啊。</p><p>——……</p><p>——老师:我们家有条狗，我叫它小红。</p>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E6%97%A5%E5%B8%B8/">日常</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/1809-1812%E6%A0%A1%E9%95%BF%E8%AE%B2%E8%AF%9D/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>站长便笺</title>
+      <link>https://asakirain.github.io/post/%E7%AB%99%E9%95%BF%E4%BE%BF%E7%AC%BA/</link>
+      <guid>https://asakirain.github.io/post/%E7%AB%99%E9%95%BF%E4%BE%BF%E7%AC%BA/</guid>
+      <pubDate>Sat, 11 May 2019 04:49:23 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;0912：董寅凯坐在那里，后门被打开了，一群人蜂拥而入&lt;/p&gt;
+&lt;p&gt;0929：郁辰：一个中心，两个基本点，董寅凯一个都没有&lt;/p&gt;
+&lt;p&gt;——董寅凯：那不是挺好的吗？&lt;/p&gt;
+&lt;p&gt;1010：心理老师：“来电脑委员电脑来给我弄一下”&lt;/p&gt;
+&lt;p&gt;——郁辰：心理老师每天和</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p>0912：董寅凯坐在那里，后门被打开了，一群人蜂拥而入</p><p>0929：郁辰：一个中心，两个基本点，董寅凯一个都没有</p><p>——董寅凯：那不是挺好的吗？</p><p>1010：心理老师：“来电脑委员电脑来给我弄一下”</p><p>——郁辰：心理老师每天和电脑做心理斗争。</p><p>1015：我现在头顶时刻有一顶绿帽。</p><p>——奚敬华：我还没谈过恋爱。</p><p>——郁辰：你曾经和数学谈过恋爱，但是数学题没做出，就被甩了。</p><p>——奚敬华：太、太真实了吧……</p><p>1024：A class of history is a class of death.</p>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E6%97%A5%E5%B8%B8/">日常</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E7%AB%99%E9%95%BF%E4%BE%BF%E7%AC%BA/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>1809-1812班主任警句</title>
+      <link>https://asakirain.github.io/post/1809-1812%E7%8F%AD%E4%B8%BB%E4%BB%BB%E8%AD%A6%E5%8F%A5/</link>
+      <guid>https://asakirain.github.io/post/1809-1812%E7%8F%AD%E4%B8%BB%E4%BB%BB%E8%AD%A6%E5%8F%A5/</guid>
+      <pubDate>Sat, 11 May 2019 04:48:48 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;0910：林雨晨，你要去换头啦～～&lt;/p&gt;
+&lt;p&gt;1019:120周年，非常难得了，130周年、十年以后。&lt;/p&gt;
+&lt;p&gt;——虞思涵：我死了。&lt;/p&gt;
+&lt;p&gt;——ZM：唉这个真有可能的。&lt;/p&gt;
+</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p>0910：林雨晨，你要去换头啦～～</p><p>1019:120周年，非常难得了，130周年、十年以后。</p><p>——虞思涵：我死了。</p><p>——ZM：唉这个真有可能的。</p>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E6%97%A5%E5%B8%B8/">日常</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/1809-1812%E7%8F%AD%E4%B8%BB%E4%BB%BB%E8%AD%A6%E5%8F%A5/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>明天就要开学了</title>
+      <link>https://asakirain.github.io/post/%E6%98%8E%E5%A4%A9%E5%B0%B1%E8%A6%81%E5%BC%80%E5%AD%A6%E4%BA%86/</link>
+      <guid>https://asakirain.github.io/post/%E6%98%8E%E5%A4%A9%E5%B0%B1%E8%A6%81%E5%BC%80%E5%AD%A6%E4%BA%86/</guid>
+      <pubDate>Fri, 26 Apr 2019 15:37:27 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;&lt;strong&gt;2018年8月30日22:01:53。&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;此刻，我怀着有点低落的心情来写这个博客。&lt;/p&gt;
+&lt;p&gt;明天下午三点，我们就要求集中到教室里，然后就开始学习。算了一下，开学第一个星期要呆在学校&lt;strong&gt;7&lt;/strong&gt;天。晚</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p><strong>2018年8月30日22:01:53。</strong></p><p>此刻，我怀着有点低落的心情来写这个博客。</p><p>明天下午三点，我们就要求集中到教室里，然后就开始学习。算了一下，开学第一个星期要呆在学校<strong>7</strong>天。晚上刚从学校里回来，去布置寝室了，看了一下寝室名单，之前军训一个寝室的人都不和我在一起，倒是和董寅凯在一起的有三个。</p><p>所以明天准备中午吃完放就去寝室先熟悉一下，毕竟看现在的状况，高中三年都要住校。所以希望一切都和睦顺利吧XD</p><p>其实我还有话想说，但是还是算了啦……万一这个博客将来会被高中同学看到</p><p>最后给大家分享一个B站视频，希望大家喜欢</p><iframe src="//player.bilibili.com/player.html?aid=2659884&amp;cid=4153879&amp;page=1" allowfullscreen="true" width="100%" height="480px"></iframe>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E6%97%A5%E5%B8%B8/">日常</category>
+      
+      <category domain="https://asakirain.github.io/categories/%E5%AA%92%E4%BD%93/">媒体</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E6%98%8E%E5%A4%A9%E5%B0%B1%E8%A6%81%E5%BC%80%E5%AD%A6%E4%BA%86/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>4个鬼畜视频[滑稽]</title>
+      <link>https://asakirain.github.io/post/4%E4%B8%AA%E9%AC%BC%E7%95%9C%E8%A7%86%E9%A2%91%E6%BB%91%E7%A8%BD/</link>
+      <guid>https://asakirain.github.io/post/4%E4%B8%AA%E9%AC%BC%E7%95%9C%E8%A7%86%E9%A2%91%E6%BB%91%E7%A8%BD/</guid>
+      <pubDate>Fri, 26 Apr 2019 15:35:40 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;&lt;a href=&quot;http://www.bilibili.com/video/av12512618&quot;&gt;特//朗//普《Despacito》&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://www.bilibili.com/video/av9757403&quot;&gt;奥//巴//</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p><a href="http://www.bilibili.com/video/av12512618">特//朗//普《Despacito》</a></p><p><a href="http://www.bilibili.com/video/av9757403">奥//巴//马《Shape of You》</a></p><p><a href="http://www.bilibili.com/video/av29637527">特//朗//普《Hand Clap》</a></p><p><a href="http://www.bilibili.com/video/av4778260">元首《Fantastic Baby》</a></p><p>都是B站链接。建议先看Hand Clap[滑稽]</p>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E6%97%A5%E5%B8%B8/">日常</category>
+      
+      <category domain="https://asakirain.github.io/categories/%E5%AA%92%E4%BD%93/">媒体</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/4%E4%B8%AA%E9%AC%BC%E7%95%9C%E8%A7%86%E9%A2%91%E6%BB%91%E7%A8%BD/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>感到了php的好处</title>
+      <link>https://asakirain.github.io/post/%E6%84%9F%E5%88%B0%E4%BA%86php%E7%9A%84%E5%A5%BD%E5%A4%84/</link>
+      <guid>https://asakirain.github.io/post/%E6%84%9F%E5%88%B0%E4%BA%86php%E7%9A%84%E5%A5%BD%E5%A4%84/</guid>
+      <pubDate>Fri, 26 Apr 2019 15:34:57 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;&lt;img src=&quot;https://asakirain.gitee.io/assets/%E6%84%9F%E5%88%B0%E4%BA%86php%E7%9A%84%E5%A5%BD%E5%A4%84/9Q3UU55ROV87N_3L8BDM.png&quot;&gt;&lt;/p&gt;
+&lt;p&gt;先</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p><img src="https://asakirain.gitee.io/assets/%E6%84%9F%E5%88%B0%E4%BA%86php%E7%9A%84%E5%A5%BD%E5%A4%84/9Q3UU55ROV87N_3L8BDM.png"></p><p>先上图。这是我修改以前的纯html的主页。主要通过JavaScript来随机选择文本池当众的一个div元素并让其显示。</p><p>这就导致一个问题：我的主页加载时间边长。而且很不简洁（特别是我自己在添加文本池的时候）。</p><p>因为要使用站长统计，我很早就已经在电脑上部署了Apache24-PHP7.2环境。</p><blockquote><p>&gt;&gt;&gt;&gt;&gt;于是乎，我去网上找了一下怎么用php实现这个效果。</p></blockquote><p><img src="https://asakirain.gitee.io/assets/%E6%84%9F%E5%88%B0%E4%BA%86php%E7%9A%84%E5%A5%BD%E5%A4%84/ICV61G76PTQWYK_@S9.png"></p><p>然后这就是简化以后的代码。哇，爽死了啊。其中我选中的部分就是修改后的代码。</p><p>对比之前的实现方法，PHP的优越性很显著。</p><p>主要原理是：</p><p>1.网页加载时，开始调用PHP处理选中语句。</p><p>2.PHP去寻找目录下一个叫做test.txt的文本文档(UTF-8编码）——我发现我居然忘记改文件名了……</p><p>3.PHP随机读取了文件中的一行，并替换掉自身位置的代码。</p><p>其实，很多东西网上有，想要实现只需要合理组织搜索语言。</p><p>我没有PHP基础，但是有点常识，这个东西还是能够自己搞定哒ww</p><p>最后，如果你想看我打码部分的东西，请再次网站首页反复刷新。（尽管你可能刷新了20次，我还是不保证你看到了所有的随机内容）</p><blockquote><p>2021.08.16更正：<br>现在暂时没有这个功能了</p></blockquote>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E6%8A%80%E6%9C%AF/">技术</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E6%84%9F%E5%88%B0%E4%BA%86php%E7%9A%84%E5%A5%BD%E5%A4%84/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>一朵红晕，一个誓言，或是简单的一声叹息——《落叶是疲倦的蝴蝶》朱成玉</title>
+      <link>https://asakirain.github.io/post/%E4%B8%80%E6%9C%B5%E7%BA%A2%E6%99%95%EF%BC%8C%E4%B8%80%E4%B8%AA%E8%AA%93%E8%A8%80%EF%BC%8C%E6%88%96%E6%98%AF%E7%AE%80%E5%8D%95%E7%9A%84%E4%B8%80%E5%A3%B0%E5%8F%B9%E6%81%AF/</link>
+      <guid>https://asakirain.github.io/post/%E4%B8%80%E6%9C%B5%E7%BA%A2%E6%99%95%EF%BC%8C%E4%B8%80%E4%B8%AA%E8%AA%93%E8%A8%80%EF%BC%8C%E6%88%96%E6%98%AF%E7%AE%80%E5%8D%95%E7%9A%84%E4%B8%80%E5%A3%B0%E5%8F%B9%E6%81%AF/</guid>
+      <pubDate>Fri, 26 Apr 2019 15:32:43 GMT</pubDate>
+      
+      
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E6%97%A5%E5%B8%B8/">日常</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E4%B8%80%E6%9C%B5%E7%BA%A2%E6%99%95%EF%BC%8C%E4%B8%80%E4%B8%AA%E8%AA%93%E8%A8%80%EF%BC%8C%E6%88%96%E6%98%AF%E7%AE%80%E5%8D%95%E7%9A%84%E4%B8%80%E5%A3%B0%E5%8F%B9%E6%81%AF/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>死者长已矣，生者当勉力——《黄土》邹志安</title>
+      <link>https://asakirain.github.io/post/%E6%AD%BB%E8%80%85%E9%95%BF%E5%B7%B2%E7%9F%A3%EF%BC%8C%E7%94%9F%E8%80%85%E5%BD%93%E5%8B%89%E5%8A%9B/</link>
+      <guid>https://asakirain.github.io/post/%E6%AD%BB%E8%80%85%E9%95%BF%E5%B7%B2%E7%9F%A3%EF%BC%8C%E7%94%9F%E8%80%85%E5%BD%93%E5%8B%89%E5%8A%9B/</guid>
+      <pubDate>Fri, 26 Apr 2019 15:32:30 GMT</pubDate>
+      
+      
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E6%97%A5%E5%B8%B8/">日常</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E6%AD%BB%E8%80%85%E9%95%BF%E5%B7%B2%E7%9F%A3%EF%BC%8C%E7%94%9F%E8%80%85%E5%BD%93%E5%8B%89%E5%8A%9B/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>那你是真的皮</title>
+      <link>https://asakirain.github.io/post/%E9%82%A3%E4%BD%A0%E6%98%AF%E7%9C%9F%E7%9A%84%E7%9A%AE/</link>
+      <guid>https://asakirain.github.io/post/%E9%82%A3%E4%BD%A0%E6%98%AF%E7%9C%9F%E7%9A%84%E7%9A%AE/</guid>
+      <pubDate>Fri, 26 Apr 2019 15:31:32 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;看这个突出的字，XDDD。&lt;/p&gt;
+&lt;p&gt;这是宁波中学初高中衔接物理作业里的一道题。事实上，这本作业里错字和错误很多的。&lt;/p&gt;
+&lt;p&gt;可能——编写的老师缺一个校对？&lt;/p&gt;
+&lt;p&gt;哈哈不管了，速皮我先乐一会。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://asakir</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p>看这个突出的字，XDDD。</p><p>这是宁波中学初高中衔接物理作业里的一道题。事实上，这本作业里错字和错误很多的。</p><p>可能——编写的老师缺一个校对？</p><p>哈哈不管了，速皮我先乐一会。</p><p><img src="https://asakirain.gitee.io/assets/%E9%82%A3%E4%BD%A0%E6%98%AF%E7%9C%9F%E7%9A%84%E7%9A%AE/IMG_6834.jpg"></p>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E6%97%A5%E5%B8%B8/">日常</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E9%82%A3%E4%BD%A0%E6%98%AF%E7%9C%9F%E7%9A%84%E7%9A%AE/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>剣が君OP「軌跡」- 小野友樹 / KENN</title>
+      <link>https://asakirain.github.io/post/%E5%89%A3%E3%81%8C%E5%90%9Bop%E3%80%8C%E8%BB%8C%E8%B7%A1%E3%80%8D-%E5%B0%8F%E9%87%8E%E5%8F%8B%E6%A8%B9-kenn/</link>
+      <guid>https://asakirain.github.io/post/%E5%89%A3%E3%81%8C%E5%90%9Bop%E3%80%8C%E8%BB%8C%E8%B7%A1%E3%80%8D-%E5%B0%8F%E9%87%8E%E5%8F%8B%E6%A8%B9-kenn/</guid>
+      <pubDate>Fri, 26 Apr 2019 15:28:00 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;&lt;img src=&quot;https://asakirain.gitee.io/assets/%E5%89%A3%E3%81%8C%E5%90%9Bop%E3%80%8C%E8%BB%8C%E8%B7%A1%E3%80%8D-%E5%B0%8F%E9%87%8E%E5%8F%8B</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p><img src="https://asakirain.gitee.io/assets/%E5%89%A3%E3%81%8C%E5%90%9Bop%E3%80%8C%E8%BB%8C%E8%B7%A1%E3%80%8D-%E5%B0%8F%E9%87%8E%E5%8F%8B%E6%A8%B9-kenn/cg00_20.png"></p><p>乙女游戏剣が君「kengakimi」的OP。按照游戏里的CV设定，那就是九十九丸和萤在唱哦。</p><p>（我想推的同样是这两个。interesting~）</p><p>我超喜欢这部的画风的。视频封面是游戏里的一张cg。如果你想要看更多的CG，可以在评论区找我，我会选择给链接或者直接发新的文章。</p><p>具体什么故事呢？看下面这个</p><p><a href="https://baike.baidu.com/item/%E5%89%91%E4%B8%BA%E5%90%9B%E8%88%9E">百度百科-剑为君舞</a></p><p>我的话，对这些男主的人设都很感兴趣呢</p><p>现在是在用VNR机翻玩这个游戏，玩到了序章三。机翻的水平堪忧，锻炼的就是你组织人物语言的能力XD.</p><p>据说今年会引进并发行剑为君舞中文版。如果那时候经济情况还行，价格我能接受的话，我会买的XD。</p><p>本来这个游戏在日本亚马逊上要500多人民币元呢……</p><blockquote><p>2021.08.16更新：<br>欢乐百世已经汉化引进了这部作品，包括《剣が君 for v》和《剣が君 百夜缀》<br>steam售价大概130RMB左右，算是国区福利了</p></blockquote><p>说回这个OP。这里我把音乐和PV都放上来吧。</p><p>——话说油管能下载到1440P的视频，比游戏内置的清晰度要高呢，好开心。</p><p><a href="https://music.163.com/song?id=27969940&userid=305755258">网易云音乐链接</a>（有版权保护，付费音乐）</p><p>接下来，欣赏这个OP呀~用流量的注意，这个视频71MB</p><div id="dplayer"></div><script src="https://cdn.jsdelivr.net/npm/dplayer@1.26.0/dist/DPlayer.min.js"></script><script>  const dp = new DPlayer({    container: document.getElementById('dplayer'),    autoplay: false,    loop: false,    lang: 'zh-cn',    screenshot: true,    hotkey: true,    preload: 'auto',    volume: 0.4,    video: {        url: '/assets/剣が君op「軌跡」-小野友樹-kenn/【Rejet】剣が君-OP-YouTube_1440.mp4',        pic: '/assets/剣が君op「軌跡」-小野友樹-kenn/cg00_20.png',        type: 'auto',    },});</script>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E5%AA%92%E4%BD%93/">媒体</category>
+      
+      <category domain="https://asakirain.github.io/categories/ACG/">ACG</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E5%89%A3%E3%81%8C%E5%90%9Bop%E3%80%8C%E8%BB%8C%E8%B7%A1%E3%80%8D-%E5%B0%8F%E9%87%8E%E5%8F%8B%E6%A8%B9-kenn/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>八月份日常听学而思课程=_=</title>
+      <link>https://asakirain.github.io/post/%E5%85%AB%E6%9C%88%E4%BB%BD%E6%97%A5%E5%B8%B8%E5%90%AC%E5%AD%A6%E8%80%8C%E6%80%9D%E8%AF%BE%E7%A8%8B/</link>
+      <guid>https://asakirain.github.io/post/%E5%85%AB%E6%9C%88%E4%BB%BD%E6%97%A5%E5%B8%B8%E5%90%AC%E5%AD%A6%E8%80%8C%E6%80%9D%E8%AF%BE%E7%A8%8B/</guid>
+      <pubDate>Fri, 26 Apr 2019 15:16:41 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;嘛，我目前听的生物课程，每天大约要1个半小时。&lt;/p&gt;
+&lt;p&gt;不过课程是我妈从别人那里弄来的。&lt;/p&gt;
+&lt;p&gt;这个课程清晰度吔屎，而且声音采样率——&lt;/p&gt;
+&lt;p&gt;一般普通音质的音乐128kbps(Bit Per Second)。这些货色只有16kbps……&lt;/p&gt;
+&lt;p&gt;</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p>嘛，我目前听的生物课程，每天大约要1个半小时。</p><p>不过课程是我妈从别人那里弄来的。</p><p>这个课程清晰度吔屎，而且声音采样率——</p><p>一般普通音质的音乐128kbps(Bit Per Second)。这些货色只有16kbps……</p><p>声音非常闷，听不清楚。</p><p>相应的，文件大小也特别小。20分钟只需50MB，而B站1080P视频一集要300多MB。</p><p>——没有对比就没有伤害啊</p>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E6%97%A5%E5%B8%B8/">日常</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E5%85%AB%E6%9C%88%E4%BB%BD%E6%97%A5%E5%B8%B8%E5%90%AC%E5%AD%A6%E8%80%8C%E6%80%9D%E8%AF%BE%E7%A8%8B/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>倉木麻衣「渡月橋-〜君-想ふ〜」Long-Ver.</title>
+      <link>https://asakirain.github.io/post/%E5%80%89%E6%9C%A8%E9%BA%BB%E8%A1%A3%E3%80%8C%E6%B8%A1%E6%9C%88%E6%A9%8B-%E3%80%9C%E5%90%9B-%E6%83%B3%E3%81%B5%E3%80%9C%E3%80%8Dlong-ver/</link>
+      <guid>https://asakirain.github.io/post/%E5%80%89%E6%9C%A8%E9%BA%BB%E8%A1%A3%E3%80%8C%E6%B8%A1%E6%9C%88%E6%A9%8B-%E3%80%9C%E5%90%9B-%E6%83%B3%E3%81%B5%E3%80%9C%E3%80%8Dlong-ver/</guid>
+      <pubDate>Fri, 26 Apr 2019 13:23:03 GMT</pubDate>
+      
+        
+        
+      <description>
+&lt;div id=&quot;dplayer&quot;&gt;&lt;/div&gt;
+&lt;script src=&quot;https://cdn.jsdelivr.net/npm/dplayer@1.26.0/dist/DPlayer.min.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+  const dp = new </description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<div id="dplayer"></div><script src="https://cdn.jsdelivr.net/npm/dplayer@1.26.0/dist/DPlayer.min.js"></script><script>  const dp = new DPlayer({    container: document.getElementById('dplayer'),    autoplay: false,    loop: false,    lang: 'zh-cn',    screenshot: true,    hotkey: true,    preload: 'auto',    volume: 0.4,    video: {        url: '/assets/倉木麻衣「渡月橋-〜君-想ふ〜」long-ver/倉木麻衣「渡月橋-〜君-想ふ〜」Long-Ver.-【Detective-Conan-Crimson-Love-Letter-OST】.mp4',        pic: '/assets/倉木麻衣「渡月橋-〜君-想ふ〜」long-ver/vlcsnap-2019-04-26-23h29m28s894.png',        type: 'auto',      },  });</script>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E5%AA%92%E4%BD%93/">媒体</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E5%80%89%E6%9C%A8%E9%BA%BB%E8%A1%A3%E3%80%8C%E6%B8%A1%E6%9C%88%E6%A9%8B-%E3%80%9C%E5%90%9B-%E6%83%B3%E3%81%B5%E3%80%9C%E3%80%8Dlong-ver/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>伪静态设置完成了</title>
+      <link>https://asakirain.github.io/post/%E4%BC%AA%E9%9D%99%E6%80%81%E8%AE%BE%E7%BD%AE%E5%AE%8C%E6%88%90%E4%BA%86/</link>
+      <guid>https://asakirain.github.io/post/%E4%BC%AA%E9%9D%99%E6%80%81%E8%AE%BE%E7%BD%AE%E5%AE%8C%E6%88%90%E4%BA%86/</guid>
+      <pubDate>Fri, 26 Apr 2019 13:19:32 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;从刚刚改了一下固定连接开始，我就发现菜单和文章点击以后都会出现404。&lt;/p&gt;
+&lt;p&gt;网上至少看了十多篇教程，Apache重启20多次还是不行。&lt;/p&gt;
+&lt;p&gt;正当我想要改回默认固定连接设置苟活的时候，我多点了一下httpd.conf文件内关于“AllowOverride”</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p>从刚刚改了一下固定连接开始，我就发现菜单和文章点击以后都会出现404。</p><p>网上至少看了十多篇教程，Apache重启20多次还是不行。</p><p>正当我想要改回默认固定连接设置苟活的时候，我多点了一下httpd.conf文件内关于“AllowOverride”的搜索</p><p>——我震惊地发现：”AllowOverride”不止一个啊！！</p><p>鬼知道一个设置有三处地方能改。先前只改了一处，死活不成功。</p><p>后来看教程以后还在wordpress根目录创建了httpd.ini并且手动编辑了.htaccess</p><p>httpd.conf配置正确后，重启发现访问wordpress博客出现http500错误。</p><p>——机智地删掉了httpd.ini和.htaccess。</p><p>这下博客能访问了，而且用文章名做固定链接也成功了。</p><p>总的来说走了不少弯路啊……花了至少2小时来做这个事。主要是类似的配置文件里除了真正的设置，注释里也会有要搜索的关键词，我就没有在意，就没有把整个配置文件搜索完。</p><p>以后要长心眼啊……</p>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E6%8A%80%E6%9C%AF/">技术</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E4%BC%AA%E9%9D%99%E6%80%81%E8%AE%BE%E7%BD%AE%E5%AE%8C%E6%88%90%E4%BA%86/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>尝试了一下Gutenburg</title>
+      <link>https://asakirain.github.io/post/%E5%B0%9D%E8%AF%95%E4%BA%86%E4%B8%80%E4%B8%8Bgutenburg/</link>
+      <guid>https://asakirain.github.io/post/%E5%B0%9D%E8%AF%95%E4%BA%86%E4%B8%80%E4%B8%8Bgutenburg/</guid>
+      <pubDate>Fri, 26 Apr 2019 13:13:32 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;从昨天更新到4.9.8开始，我就看到这个新编辑器的宣传页面了。刚刚去试用了一下。感觉对移动端不大友好？画面会弹来弹去的emm&lt;/p&gt;
+&lt;p&gt;写写博客我可能还是喜欢用默认的编辑样式。因为它比较接近word编辑，直观一些（虽然我也很少用这些格式）&lt;/p&gt;
+&lt;p&gt;好在它是以插件形</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p>从昨天更新到4.9.8开始，我就看到这个新编辑器的宣传页面了。刚刚去试用了一下。感觉对移动端不大友好？画面会弹来弹去的emm</p><p>写写博客我可能还是喜欢用默认的编辑样式。因为它比较接近word编辑，直观一些（虽然我也很少用这些格式）</p><p>好在它是以插件形式来改变形式的，直接禁用就好了。</p><p>下面是对比图：</p><p><img src="https://asakirain.gitee.io/assets/%E5%B0%9D%E8%AF%95%E4%BA%86%E4%B8%80%E4%B8%8Bgutenburg/IMG_6814.png"></p><p>^^^^^^^^^^^^^^^^</p><p>这个是加了插件的样子</p><p><img src="https://asakirain.gitee.io/assets/%E5%B0%9D%E8%AF%95%E4%BA%86%E4%B8%80%E4%B8%8Bgutenburg/IMG_6814.png"></p><p>^^^^^^^^^^^^^</p><p>这个是原版编辑框</p>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E6%97%A5%E5%B8%B8/">日常</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E5%B0%9D%E8%AF%95%E4%BA%86%E4%B8%80%E4%B8%8Bgutenburg/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>今天，我的博客诞生</title>
+      <link>https://asakirain.github.io/post/%E4%BB%8A%E5%A4%A9%EF%BC%8C%E6%88%91%E7%9A%84%E5%8D%9A%E5%AE%A2%E8%AF%9E%E7%94%9F/</link>
+      <guid>https://asakirain.github.io/post/%E4%BB%8A%E5%A4%A9%EF%BC%8C%E6%88%91%E7%9A%84%E5%8D%9A%E5%AE%A2%E8%AF%9E%E7%94%9F/</guid>
+      <pubDate>Fri, 26 Apr 2019 13:06:31 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;2018年8月3日下午。&lt;/p&gt;
+&lt;p&gt;经过一上午对于MYSQL坑逼的奋战，我成功创建了这个博客。目前雏形有了，一些板块和分类我还是搞得很懵逼。&lt;/p&gt;
+&lt;p&gt;——也许百度一下是一个好选择，不过关键词叙述比较考验语文能力？&lt;/p&gt;
+&lt;p&gt;另外，我自己也不知道这个博客的更新频</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p>2018年8月3日下午。</p><p>经过一上午对于MYSQL坑逼的奋战，我成功创建了这个博客。目前雏形有了，一些板块和分类我还是搞得很懵逼。</p><p>——也许百度一下是一个好选择，不过关键词叙述比较考验语文能力？</p><p>另外，我自己也不知道这个博客的更新频率。我是新高一党，学校是寄宿制的。暑假里可能更新多一点(也许？)，开学以后只有双休日在家里。平常学习生活中一些即兴的感想以及想要分享的东西对我而言只有当天晚上之前发出来我才不会忘记呐……</p><p>最后，希望这个博客能有人光顾呀XD</p>]]></content:encoded>
+      
+      
+      <category domain="https://asakirain.github.io/categories/%E9%BB%98%E8%AE%A4/">默认</category>
+      
+      <category domain="https://asakirain.github.io/categories/%E6%97%A5%E5%B8%B8/">日常</category>
+      
+      
+      
+      <comments>https://asakirain.github.io/post/%E4%BB%8A%E5%A4%A9%EF%BC%8C%E6%88%91%E7%9A%84%E5%8D%9A%E5%AE%A2%E8%AF%9E%E7%94%9F/#disqus_thread</comments>
+      
+    </item>
+    
+  </channel>
+</rss>
